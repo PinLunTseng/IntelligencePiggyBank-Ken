@@ -8,6 +8,8 @@ urlpatterns = [
     path('models/', views.models),
 
 
+    #test route
+    path('test/', views.get_period_date),
     # needs to remove after done the initiate
     path('init_db/', views.init_db),
 ]

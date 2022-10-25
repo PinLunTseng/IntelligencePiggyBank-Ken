@@ -35,29 +35,27 @@ def models(request):
             allocate_mv[i][j] = amount_mv[i] * weight_mv[i][j]
             shares_mv[i][j] = allocate_mv[i][j] / price[i][j]
 
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
     roi_mv = {0: 0.0}
     for i in range(1, period):
         roi_mv[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
 
-    periods = [x for x in range(1, 94)]
+    # Annual Return
     amount_mv_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
-    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
 
-    # undo task: sort the weight by weight, and create the weight pie chart
+    # pie chart
+    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
     latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
     top_10_assets_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_weight = [x[1]*100 for x in latest_weight_mv_after_sorted[:10]]
-
     top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1]*100 for x in latest_weight_mv_after_sorted[:10]]
     top_10_assets_weight.append(sum([x[1]*100 for x in latest_weight_mv_after_sorted[10:]]))
-    top_10_assets_weight = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight)
-    # others_weight = sum([x[1] for x in latest_weight_mv_after_sorted[10:]])
-
-
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+    
     return render(request, 'portfolio/models.html', locals())
-
-
 
 
 def create_assets():
@@ -98,6 +96,14 @@ def create_price():
                 open_df.iloc[20 * i, j]
                 cursor.execute("insert into portfolio_price ('price', 'assets_id', 'index_id') values (%s, %s, %s);",
                                [open_df.iloc[20 * i, j], j + 1, i + 1])
+
+
+def get_period_date():
+    with connection.cursor() as cursor:
+        cursor.execute("select portfolio_period.date from portfolio_index inner join portfolio_period on portfolio_index.period_id=portfolio_period.id;")
+        row = cursor.fetchall()
+        period_date = [date[0] for date in row]
+        return period_date
 
 
 def get_prices():
