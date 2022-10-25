@@ -5,11 +5,12 @@ urlpatterns = [
     path('home/', views.home),
     path('methodology/', views.methodology),
     path('about_us/', views.about_us),
-    path('models/', views.models),
+    path('models_MV/', views.models_MV),
+    path('models_CVaR/', views.models_CVaR),
+    path('models_Omega/', views.models_Omega),
 
 
-    #test route
-    path('test/', views.get_period_date),
+
     # needs to remove after done the initiate
     path('init_db/', views.init_db),
 ]

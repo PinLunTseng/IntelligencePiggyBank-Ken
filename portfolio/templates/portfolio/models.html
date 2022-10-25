@@ -83,7 +83,7 @@
               <div class="u-container-style u-group u-hover-feature u-group-3" data-animation-name="customAnimationIn" data-animation-duration="1250" data-animation-direction="">
                 <div class="u-container-layout u-valign-middle u-container-layout-4">
                   <h5 class="u-align-center u-text u-text-default u-text-3">about</h5>
-                  <h2 class="u-align-center u-text u-text-default u-text-4">Design Online </h2>
+                  <h2 class="u-align-center u-text u-text-default u-text-4">{{model_name}}</h2>
                   <p class="u-align-center u-text u-text-5">Paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur id suscipit ex. Suspendisse rhoncus laoreet purus <a href="" class="u-border-1 u-border-grey-75 u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-none u-text-body-color u-btn-1">quis elementum</a>. Phasellus sed efficitur dolor, et ultricies sapien. Quisque fringilla sit amet dolor commodo efficitur.
                 Aliquam et sem odio. In ullamcorper nisi nunc, et molestie ipsum iaculis sit amet. 
                   </p>
@@ -233,7 +233,7 @@
       series: [{
         name: 'Oslo',
         data: [
-            {% for amount in amount_mv_response %}
+            {% for amount in amount_response %}
                 {{ amount }},
             {% endfor %}
           ]
@@ -308,7 +308,7 @@
           series: [{
 <!--            data: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512],-->
             data: [
-            {% for k, v in roi_mv.items%}
+            {% for k, v in roi.items%}
                 {{v}},
             {% endfor %}
             ],

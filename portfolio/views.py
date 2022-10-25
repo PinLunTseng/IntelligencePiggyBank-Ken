@@ -16,7 +16,7 @@ def about_us(request):
     return render(request, 'portfolio/about_us.html', locals())
 
 
-def models(request):
+def models_MV(request):
     price = get_prices()
     weight_mv = get_weight_MV()
     amount_mv = {0: 1_000_000}
@@ -38,12 +38,12 @@ def models(request):
     periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
 
     # ROI
-    roi_mv = {0: 0.0}
+    roi = {0: 0.0}
     for i in range(1, period):
-        roi_mv[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
+        roi[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
 
     # Annual Return
-    amount_mv_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
+    amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
 
     # pie chart
     latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
@@ -54,8 +54,99 @@ def models(request):
     top_10_assets_weight.append(sum([x[1]*100 for x in latest_weight_mv_after_sorted[10:]]))
     top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
     top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
-    
+
+    model_name = "MV"
+
     return render(request, 'portfolio/models.html', locals())
+
+
+def models_CVaR(request):
+    price = get_prices()
+    weight_CVaR = get_weight_CVaR()
+    amount_CVaR = {0: 1_000_000}
+    allocate_CVaR = {}
+    shares_CVaR = {}
+    period = len(weight_CVaR)
+    assets = len(weight_CVaR[0])
+    for i in range(period):
+        allocate_CVaR[i] = [0 for x in range(assets)]
+        shares_CVaR[i] = [0 for x in range(assets)]
+
+        if i != 0:
+            amount_CVaR[i] = sum(price[i][j] * shares_CVaR[i - 1][j] for j in range(assets))
+
+        for j in range(assets):
+            allocate_CVaR[i][j] = amount_CVaR[i] * weight_CVaR[i][j]
+            shares_CVaR[i][j] = allocate_CVaR[i][j] / price[i][j]
+
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
+    roi = {0: 0.0}
+    for i in range(1, period):
+        roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]
+
+    # Annual Return
+    amount_response = ["{:.2f}".format(v) for k, v in amount_CVaR.items()]
+
+    # pie chart
+    latest_weight_CVaR_response = {asset: weight for weight, asset in zip(weight_CVaR[-1], get_assets())}
+    latest_weight_CVaR_after_sorted = sorted(latest_weight_CVaR_response.items(), key=lambda x: x[1], reverse=True)
+    top_10_assets_name = [x[0] for x in latest_weight_CVaR_after_sorted[:10]]
+    top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_CVaR_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_CVaR_after_sorted[10:]]))
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+
+    model_name = "CVaR"
+
+    return render(request, 'portfolio/models.html', locals())
+
+
+def models_Omega(request):
+    price = get_prices()
+    weight_Omega = get_weight_Omega()
+    amount_Omega = {0: 1_000_000}
+    allocate_Omega = {}
+    shares_Omega = {}
+    period = len(weight_Omega)
+    assets = len(weight_Omega[0])
+    for i in range(period):
+        allocate_Omega[i] = [0 for x in range(assets)]
+        shares_Omega[i] = [0 for x in range(assets)]
+
+        if i != 0:
+            amount_Omega[i] = sum(price[i][j] * shares_Omega[i - 1][j] for j in range(assets))
+
+        for j in range(assets):
+            allocate_Omega[i][j] = amount_Omega[i] * weight_Omega[i][j]
+            shares_Omega[i][j] = allocate_Omega[i][j] / price[i][j]
+
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
+    roi = {0: 0.0}
+    for i in range(1, period):
+        roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]
+
+    # Annual Return
+    amount_response = ["{:.2f}".format(v) for k, v in amount_Omega.items()]
+
+    # pie chart
+    latest_weight_Omega_response = {asset: weight for weight, asset in zip(weight_Omega[-1], get_assets())}
+    latest_weight_Omega_after_sorted = sorted(latest_weight_Omega_response.items(), key=lambda x: x[1], reverse=True)
+    top_10_assets_name = [x[0] for x in latest_weight_Omega_after_sorted[:10]]
+    top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_Omega_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_Omega_after_sorted[10:]]))
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+
+    model_name = "Omega"
+
+    return render(request, 'portfolio/models.html', locals())
+
 
 
 def create_assets():
