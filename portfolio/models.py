@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -36,3 +37,9 @@ class WeightWOmega(models.Model):
     assets = models.ForeignKey(Assets, on_delete=models.CASCADE)
     index = models.ForeignKey(Index, on_delete=models.CASCADE)
     weight = models.FloatField()
+
+
+class Portfolio(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    risk_preference = models.FloatField(default=0)
+    amount = models.FloatField(default=0)

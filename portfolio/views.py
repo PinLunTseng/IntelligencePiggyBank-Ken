@@ -1,6 +1,13 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import views as auth_views, authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
 import pandas as pd
+from django.urls import reverse
+
+from .form import LoginForm, CreateUserForm
 from django.db import connection
 
 
@@ -14,6 +21,65 @@ def methodology(request):
 
 def about_us(request):
     return render(request, 'portfolio/about_us.html', locals())
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        return HttpResponse('登入成功')
+
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(reverse('portfolio:home'))
+            # return redirect(reverse('user_test:login_required_view'))
+            # Redirect to a success page.
+        else:
+            login_form = LoginForm()
+            error_message = 'Wrong password, dude.'
+    else:
+        login_form = LoginForm()
+    return render(request, "portfolio/login2.html", locals())
+
+
+def user_logout(request):
+    logout(request)
+    return redirect(reverse('portfolio:home'))
+
+
+def create_user(request):
+    if request.user.is_authenticated:
+        # user already login
+        return HttpResponse('你已經登入了')
+
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        email = request.POST['email']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # user duplicated
+            create_user_form = CreateUserForm()
+            error_message = 'User had already exist!'
+        else:
+            # create user success
+            user = User.objects.create_user(username, email, password)
+            return redirect('portfolio:login')
+    else:
+        # if request method isn't POST
+        create_user_form = CreateUserForm()
+    return render(request, "portfolio/create_user.html", locals())
+
+
+@login_required
+def portfolio_list(request):
+    user_id = request.user.id
+    with connection.cursor() as cursor:
+        cursor.execute("select risk_preference, amount from portfolio_portfolio where user_id=%s;" % user_id)
+        rows = cursor.fetchall()
+    return HttpResponse(rows)
 
 
 def models_MV(request):
@@ -146,7 +212,6 @@ def models_Omega(request):
     model_name = "Omega"
 
     return render(request, 'portfolio/models.html', locals())
-
 
 
 def create_assets():
