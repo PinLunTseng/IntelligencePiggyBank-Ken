@@ -3,11 +3,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views, authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
+import dash
+from dash import html
+import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output, State
 import pandas as pd
 from django.urls import reverse
 
-from .form import LoginForm, CreateUserForm, RiskPreferenceMeasureForm01, RiskPreferenceMeasureForm02
+from .form import LoginForm, CreateUserForm, RiskPreferenceMeasureForm01, RiskPreferenceMeasureForm02, PictureForm
 from django.db import connection
 
 
@@ -120,8 +123,8 @@ def models_MV(request):
     latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
     top_10_assets_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
     top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1]*100 for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1]*100 for x in latest_weight_mv_after_sorted[10:]]))
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
     top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
     top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
 
@@ -260,7 +263,8 @@ def create_price():
 
 def get_period_date():
     with connection.cursor() as cursor:
-        cursor.execute("select portfolio_period.date from portfolio_index inner join portfolio_period on portfolio_index.period_id=portfolio_period.id;")
+        cursor.execute(
+            "select portfolio_period.date from portfolio_index inner join portfolio_period on portfolio_index.period_id=portfolio_period.id;")
         row = cursor.fetchall()
         period_date = [date[0] for date in row]
         return period_date
@@ -307,13 +311,13 @@ def get_weight_Omega():
 
 
 def create_MV_weight():
-
     open_df = pd.read_excel("model_result/MV.xlsx", sheet_name="weight").iloc[:, 1:]
     for i in range(93):
         for j in range(466):
             with connection.cursor() as cursor:
-                cursor.execute("insert into portfolio_weightmv ('weight', 'assets_id', 'index_id') values (%s, %s, %s);",
-                               [float(open_df.iloc[i, j]), j + 1, i + 1])
+                cursor.execute(
+                    "insert into portfolio_weightmv ('weight', 'assets_id', 'index_id') values (%s, %s, %s);",
+                    [float(open_df.iloc[i, j]), j + 1, i + 1])
 
 
 def create_CVaR_weight():
@@ -354,7 +358,6 @@ def risk_preference_measurement(request):
         ret3 = request.POST['question02_01']
         ret4 = request.POST['question02_02']
 
-
         return HttpResponse('-'.join([ret1, ret2, ret3, ret4]))
     else:
         # if request method isn't POST
@@ -362,8 +365,41 @@ def risk_preference_measurement(request):
         form1 = RiskPreferenceMeasureForm01()
         form2 = RiskPreferenceMeasureForm02()
 
-
     return render(request, 'portfolio/test.html', locals())
+
+
+def questionnaire(request):
+    if request.method == "POST":
+        question01 = request.POST['question01']
+        question02 = request.POST['question02']
+        question03 = request.POST['question03']
+        question04 = request.POST['question04']
+        question05 = request.POST['question05']
+        question06 = request.POST['question06']
+        question07 = request.POST['question07']
+        question08 = request.POST['question08']
+        question09 = request.POST['question09']
+        question10 = request.POST['question10']
+        question11 = request.POST['question11']
+        question12 = request.POST['question12']
+        result = [question01,
+                  question02,
+                  question03,
+                  question04,
+                  question05,
+                  question06,
+                  question07,
+                  question08,
+                  question09,
+                  question10,
+                  question11,
+                  question12, ]
+        # scale the risk reference and propose model
+        return HttpResponse(result)
+    else:
+        # if request method isn't POST
+        form = PictureForm()
+    return render(request, 'portfolio/questionnaire.html', locals())
 
 
 def form_test(request):

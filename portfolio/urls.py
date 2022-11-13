@@ -14,6 +14,7 @@ urlpatterns = [
     path('portfolio_list/', views.portfolio_list),
 
     path('risk_preference_measurement/', views.risk_preference_measurement),
+    path('questionnaire/', views.questionnaire),
     path('form_test/', views.form_test),
     # needs to remove after done the initiate
     path('init_db/', views.init_db),
