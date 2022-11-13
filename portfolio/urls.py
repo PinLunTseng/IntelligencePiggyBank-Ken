@@ -13,7 +13,8 @@ urlpatterns = [
     path('create_user/', views.create_user),
     path('portfolio_list/', views.portfolio_list),
 
-
+    path('risk_preference_measurement/', views.risk_preference_measurement),
+    path('form_test/', views.form_test),
     # needs to remove after done the initiate
     path('init_db/', views.init_db),
 ]

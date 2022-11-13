@@ -9,12 +9,16 @@
 
  <form action="#" method="post">
      {% csrf_token %}
-            <label for="username">用戶名稱:</label>
-            <input type="text" name="username" value="" id="username"> <br />
-            <label for="email">用戶郵箱:</label>
-            <input type="text" name="email" value="" id="email"> <br />
-            <label for="password">用戶密碼:</label>
-            <input type="password" name="password" value="" id="password"> <br />
+<!--            <label for="username">用戶名稱:</label>-->
+<!--            <input type="text" name="username" value="" id="username"> <br />-->
+
+<!--            <label for="email">用戶郵箱:</label>-->
+<!--            <input type="text" name="email" value="" id="email"> <br />-->
+
+<!--            <label for="password">用戶密碼:</label>-->
+<!--            <input type="password" name="password" value="" id="password"> <br />-->
+            {{ create_user_form }}
+            {{ create_user_form2 }}
             <input type="submit" value="登入" />
      <tr>{{ error_message }}</tr>
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="content-wrapper">
+    <form action="#" method="post">
+        <div id="btn2content" style="display:block;" onclick="">
+            {% csrf_token %}
+            {{ form1 }}
+            <input type="button" onclick="hideLayer('btn2content');showLayer('btn3content');" ; value="登入"/>
+        </div>
+        <div id="btn3content" style="display:none;">
+            {% csrf_token %}
+            {{ form2 }}
+            <input type="submit" value="Submit">
+
+        </div>
+    </form>
+
+</div>
+
+
+<script type="text/javascript">
+
+    function hideLayer(id) {
+        var e = document.getElementById(id);
+        if(e.style.display == 'block')
+        e.style.display = 'none';
+    }
+
+
+
+
+</script>
+<script type="text/javascript">
+
+    function showLayer(id) {
+        var e = document.getElementById(id);
+        if(e.style.display == 'none')
+        e.style.display = 'block';
+    }
+
+
+
+
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 import pandas as pd
 from django.urls import reverse
 
-from .form import LoginForm, CreateUserForm
+from .form import LoginForm, CreateUserForm, RiskPreferenceMeasureForm01, RiskPreferenceMeasureForm02
 from django.db import connection
 
 
@@ -70,6 +70,7 @@ def create_user(request):
     else:
         # if request method isn't POST
         create_user_form = CreateUserForm()
+
     return render(request, "portfolio/create_user.html", locals())
 
 
@@ -80,6 +81,9 @@ def portfolio_list(request):
         cursor.execute("select risk_preference, amount from portfolio_portfolio where user_id=%s;" % user_id)
         rows = cursor.fetchall()
     return HttpResponse(rows)
+
+
+# create a model form for portfolio
 
 
 def models_MV(request):
@@ -341,3 +345,40 @@ def init_db(request):
     create_CVaR_weight()
     create_WOmega_weight()
     return HttpResponse('Complete create all data.')
+
+
+def risk_preference_measurement(request):
+    if request.method == "POST":
+        ret1 = request.POST['question01_01']
+        ret2 = request.POST['question01_02']
+        ret3 = request.POST['question02_01']
+        ret4 = request.POST['question02_02']
+
+
+        return HttpResponse('-'.join([ret1, ret2, ret3, ret4]))
+    else:
+        # if request method isn't POST
+
+        form1 = RiskPreferenceMeasureForm01()
+        form2 = RiskPreferenceMeasureForm02()
+
+
+    return render(request, 'portfolio/test.html', locals())
+
+
+def form_test(request):
+    if request.method == "POST":
+        # username = request.POST['username']
+        # password = request.POST['password']
+        # print(username, password)
+        # return HttpResponse(username, password)
+        ret1 = request.POST['question01_01']
+        ret2 = request.POST['question01_02']
+        ret3 = request.POST['question02_01']
+        ret4 = request.POST['question02_02']
+        print(ret1, ret2, ret3, ret4)
+    else:
+        # create_user_form = LoginForm()
+        create_user_form = RiskPreferenceMeasureForm01()
+        create_user_form2 = RiskPreferenceMeasureForm02()
+    return render(request, 'portfolio/create_user.html', locals())
