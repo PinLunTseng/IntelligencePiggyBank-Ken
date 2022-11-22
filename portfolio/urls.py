@@ -4,18 +4,12 @@ from . import views
 app_name = 'portfolio'
 urlpatterns = [
     path('home/', views.home, name='home'),
-    path('methodology/', views.methodology),
-    path('about_us/', views.about_us),
-    path('models_MV/', views.models_MV),
-    path('models_CVaR/', views.models_CVaR),
-    path('models_Omega/', views.models_Omega),
-    path('login/', views.user_login, name='login'),
-    path('create_user/', views.create_user),
-    path('portfolio_list/', views.portfolio_list),
-
-    path('risk_preference_measurement/', views.risk_preference_measurement),
-    path('questionnaire/', views.questionnaire),
-    path('form_test/', views.form_test),
-    # needs to remove after done the initiate
-    path('init_db/', views.init_db),
+    path('about/', views.about, name='about'),
+    path('questionnaire/', views.questionnaire, name='questionnaire'),
+    # 問卷試算
+    path('calculation/', views.calculation, name='calculation'),
+    path('signUp/', views.signUp, name='signUp'),
+    path('signIn/', views.signIn, name='signIn'),
+    path('signOut/', views.signOut, name='signOut'),
+    # path('portfolio_list/', views.portfolio_list),
 ]

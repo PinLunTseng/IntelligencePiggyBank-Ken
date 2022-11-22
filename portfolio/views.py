@@ -3,27 +3,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views, authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-import dash
-from dash import html
-import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
 import pandas as pd
 from django.urls import reverse
 
-from .form import LoginForm, CreateUserForm, RiskPreferenceMeasureForm01, RiskPreferenceMeasureForm02, PictureForm
+from .form import LoginForm, CreateUserForm, PictureForm, CalculationForm
 from django.db import connection
-
-
-def home(request):
-    return render(request, 'portfolio/index.html', locals())
-
-
-def methodology(request):
-    return render(request, 'portfolio/methodology.html', locals())
-
-
-def about_us(request):
-    return render(request, 'portfolio/about_us.html', locals())
 
 
 def user_login(request):
@@ -41,15 +25,10 @@ def user_login(request):
             # Redirect to a success page.
         else:
             login_form = LoginForm()
-            error_message = 'Wrong password, dude.'
+            error_message = 'Wrong password.'
     else:
         login_form = LoginForm()
-    return render(request, "portfolio/login2.html", locals())
-
-
-def user_logout(request):
-    logout(request)
-    return redirect(reverse('portfolio:home'))
+    return render(request, "portfolio/login4.html", locals())
 
 
 def create_user(request):
@@ -75,150 +54,6 @@ def create_user(request):
         create_user_form = CreateUserForm()
 
     return render(request, "portfolio/create_user.html", locals())
-
-
-@login_required
-def portfolio_list(request):
-    user_id = request.user.id
-    with connection.cursor() as cursor:
-        cursor.execute("select risk_preference, amount from portfolio_portfolio where user_id=%s;" % user_id)
-        rows = cursor.fetchall()
-    return HttpResponse(rows)
-
-
-# create a model form for portfolio
-
-
-def models_MV(request):
-    price = get_prices()
-    weight_mv = get_weight_MV()
-    amount_mv = {0: 1_000_000}
-    allocate_mv = {}
-    shares_mv = {}
-    period = len(weight_mv)
-    assets = len(weight_mv[0])
-    for i in range(period):
-        allocate_mv[i] = [0 for x in range(assets)]
-        shares_mv[i] = [0 for x in range(assets)]
-
-        if i != 0:
-            amount_mv[i] = sum(price[i][j] * shares_mv[i - 1][j] for j in range(assets))
-
-        for j in range(assets):
-            allocate_mv[i][j] = amount_mv[i] * weight_mv[i][j]
-            shares_mv[i][j] = allocate_mv[i][j] / price[i][j]
-
-    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
-
-    # ROI
-    roi = {0: 0.0}
-    for i in range(1, period):
-        roi[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
-
-    # Annual Return
-    amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
-
-    # pie chart
-    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
-    latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
-
-    model_name = "MV"
-
-    return render(request, 'portfolio/models.html', locals())
-
-
-def models_CVaR(request):
-    price = get_prices()
-    weight_CVaR = get_weight_CVaR()
-    amount_CVaR = {0: 1_000_000}
-    allocate_CVaR = {}
-    shares_CVaR = {}
-    period = len(weight_CVaR)
-    assets = len(weight_CVaR[0])
-    for i in range(period):
-        allocate_CVaR[i] = [0 for x in range(assets)]
-        shares_CVaR[i] = [0 for x in range(assets)]
-
-        if i != 0:
-            amount_CVaR[i] = sum(price[i][j] * shares_CVaR[i - 1][j] for j in range(assets))
-
-        for j in range(assets):
-            allocate_CVaR[i][j] = amount_CVaR[i] * weight_CVaR[i][j]
-            shares_CVaR[i][j] = allocate_CVaR[i][j] / price[i][j]
-
-    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
-
-    # ROI
-    roi = {0: 0.0}
-    for i in range(1, period):
-        roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]
-
-    # Annual Return
-    amount_response = ["{:.2f}".format(v) for k, v in amount_CVaR.items()]
-
-    # pie chart
-    latest_weight_CVaR_response = {asset: weight for weight, asset in zip(weight_CVaR[-1], get_assets())}
-    latest_weight_CVaR_after_sorted = sorted(latest_weight_CVaR_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_CVaR_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_CVaR_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_CVaR_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
-
-    model_name = "CVaR"
-
-    return render(request, 'portfolio/models.html', locals())
-
-
-def models_Omega(request):
-    price = get_prices()
-    weight_Omega = get_weight_Omega()
-    amount_Omega = {0: 1_000_000}
-    allocate_Omega = {}
-    shares_Omega = {}
-    period = len(weight_Omega)
-    assets = len(weight_Omega[0])
-    for i in range(period):
-        allocate_Omega[i] = [0 for x in range(assets)]
-        shares_Omega[i] = [0 for x in range(assets)]
-
-        if i != 0:
-            amount_Omega[i] = sum(price[i][j] * shares_Omega[i - 1][j] for j in range(assets))
-
-        for j in range(assets):
-            allocate_Omega[i][j] = amount_Omega[i] * weight_Omega[i][j]
-            shares_Omega[i][j] = allocate_Omega[i][j] / price[i][j]
-
-    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
-
-    # ROI
-    roi = {0: 0.0}
-    for i in range(1, period):
-        roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]
-
-    # Annual Return
-    amount_response = ["{:.2f}".format(v) for k, v in amount_Omega.items()]
-
-    # pie chart
-    latest_weight_Omega_response = {asset: weight for weight, asset in zip(weight_Omega[-1], get_assets())}
-    latest_weight_Omega_after_sorted = sorted(latest_weight_Omega_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_Omega_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_Omega_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_Omega_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
-
-    model_name = "Omega"
-
-    return render(request, 'portfolio/models.html', locals())
 
 
 def create_assets():
@@ -351,23 +186,11 @@ def init_db(request):
     return HttpResponse('Complete create all data.')
 
 
-def risk_preference_measurement(request):
-    if request.method == "POST":
-        ret1 = request.POST['question01_01']
-        ret2 = request.POST['question01_02']
-        ret3 = request.POST['question02_01']
-        ret4 = request.POST['question02_02']
+'''
+=================================
+'''
 
-        return HttpResponse('-'.join([ret1, ret2, ret3, ret4]))
-    else:
-        # if request method isn't POST
-
-        form1 = RiskPreferenceMeasureForm01()
-        form2 = RiskPreferenceMeasureForm02()
-
-    return render(request, 'portfolio/test.html', locals())
-
-
+# 問卷試算
 def questionnaire(request):
     if request.method == "POST":
         question01 = request.POST['question01']
@@ -382,6 +205,7 @@ def questionnaire(request):
         question10 = request.POST['question10']
         question11 = request.POST['question11']
         question12 = request.POST['question12']
+        amount = int(request.POST['amount'])
         result = [question01,
                   question02,
                   question03,
@@ -394,27 +218,264 @@ def questionnaire(request):
                   question10,
                   question11,
                   question12, ]
-        # scale the risk reference and propose model
-        return HttpResponse(result)
+        sharpe_ratio = sum(float(x) for x in result)/12
+        # 取得風險偏好與金額，直接做試算
+        if sharpe_ratio <= 0.3:
+            # cvar
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
+        elif sharpe_ratio < 0.7:
+            # omega
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_Omega(amount)
+        else:
+            # mv
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_MV(amount)
+
+        return render(request, "portfolio/Performance.html", locals())
     else:
         # if request method isn't POST
         form = PictureForm()
-    return render(request, 'portfolio/questionnaire.html', locals())
+    return render(request, 'portfolio/Questionnaire.html', locals())
 
 
-def form_test(request):
+# 投資組合清單
+# @login_required
+# def portfolio_list(request):
+#     user_id = request.user.id
+#     # with connection.cursor() as cursor:
+#     #     cursor.execute("select risk_preference, amount from portfolio_portfolio where user_id=%s;" % user_id)
+#     #     rows = cursor.fetchall()
+#     n = [(x, x+1) for x in range(10)]
+#     return render(request, 'portfolio/Portfolio_list.html', locals())
+
+
+# 首頁
+def home(request):
+    return render(request, 'portfolio/Home.html', locals())
+
+
+# 會員專區
+# @login_required
+# def contact(request):
+#     user_id = request.user.id
+#     with connection.cursor() as cursor:
+#         cursor.execute("select risk_preference, amount from portfolio_portfolio where user_id=%s;" % user_id)
+#         rows = cursor.fetchall()
+#     return HttpResponse(rows)
+#     # return render(request, 'portfolio/Contact.html', locals())
+
+
+# 關於我們
+def about(request):
+    return render(request, 'portfolio/About.html', locals())
+
+
+# 用戶註冊
+def signUp(request):
+    # 用戶已經登入了
+    if request.user.is_authenticated:
+        return redirect(reverse('portfolio:home'))
     if request.method == "POST":
-        # username = request.POST['username']
-        # password = request.POST['password']
-        # print(username, password)
-        # return HttpResponse(username, password)
-        ret1 = request.POST['question01_01']
-        ret2 = request.POST['question01_02']
-        ret3 = request.POST['question02_01']
-        ret4 = request.POST['question02_02']
-        print(ret1, ret2, ret3, ret4)
+        username = request.POST['username']
+        password = request.POST['password']
+        email = request.POST['email']
+        user = authenticate(username=username, password=password)
+        try:
+            # 註冊成功，登入並導向home
+            user = User.objects.create_user(username, email, password)
+            login(request, user)
+            return redirect(reverse('portfolio:home'))
+        except Exception:
+            error_message = '用戶名稱重複！'
+            return render(request, "portfolio/SingUp.html", locals())
+    return render(request, "portfolio/SingUp.html", locals())
+
+
+# 用戶登入
+def signIn(request):
+    if request.user.is_authenticated:
+        return redirect(reverse('portfolio:home'))
+
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(reverse('portfolio:home'))
+        else:
+            error_message = '密碼錯誤。'
     else:
-        # create_user_form = LoginForm()
-        create_user_form = RiskPreferenceMeasureForm01()
-        create_user_form2 = RiskPreferenceMeasureForm02()
-    return render(request, 'portfolio/create_user.html', locals())
+        return render(request, "portfolio/SingIn.html", locals())
+
+    return render(request, "portfolio/SingIn.html", locals())
+
+
+# 用戶登出
+def signOut(request):
+    logout(request)
+    return redirect(reverse('portfolio:home'))
+
+
+# 快速試算
+def calculation(request):
+    # 選擇模型跟填入金額 即可試算
+    if request.method == "POST":
+        model = int(request.POST['model'])
+        amount = int(request.POST['amount'])
+        '''
+        傳送參數amount, 並選取特定之模型function
+        '''
+
+        if model == 1:
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_MV(amount)
+        elif model == 2:
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
+        else:
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_Omega(amount)
+    else:
+        form = CalculationForm()
+        # return render(request, "portfolio/Calculation.html", locals())
+        return render(request, "portfolio/Calculation.html", locals())
+    return render(request, "portfolio/Performance.html", locals())
+
+
+def models_MV(amount):
+    price = get_prices()
+    weight_mv = get_weight_MV()
+    amount_mv = {0: amount}
+    allocate_mv = {}
+    shares_mv = {}
+    period = len(weight_mv)
+    assets = len(weight_mv[0])
+    for i in range(period):
+        allocate_mv[i] = [0 for x in range(assets)]
+        shares_mv[i] = [0 for x in range(assets)]
+
+        if i != 0:
+            amount_mv[i] = sum(price[i][j] * shares_mv[i - 1][j] for j in range(assets))
+
+        for j in range(assets):
+            allocate_mv[i][j] = amount_mv[i] * weight_mv[i][j]
+            shares_mv[i][j] = allocate_mv[i][j] / price[i][j]
+
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
+    roi = {0: 0.0}
+    for i in range(1, period):
+        roi[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
+
+    # Annual Return
+    amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
+
+    # pie chart
+    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
+    latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
+    top_10_assets_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
+    top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+
+    model_name = "MV"
+    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+
+
+def models_CVaR(amount):
+    price = get_prices()
+    weight_CVaR = get_weight_CVaR()
+    amount_CVaR = {0: amount}
+    allocate_CVaR = {}
+    shares_CVaR = {}
+    period = len(weight_CVaR)
+    assets = len(weight_CVaR[0])
+    for i in range(period):
+        allocate_CVaR[i] = [0 for x in range(assets)]
+        shares_CVaR[i] = [0 for x in range(assets)]
+
+        if i != 0:
+            amount_CVaR[i] = sum(price[i][j] * shares_CVaR[i - 1][j] for j in range(assets))
+
+        for j in range(assets):
+            allocate_CVaR[i][j] = amount_CVaR[i] * weight_CVaR[i][j]
+            shares_CVaR[i][j] = allocate_CVaR[i][j] / price[i][j]
+
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
+    roi = {0: 0.0}
+    for i in range(1, period):
+        roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]
+
+    # Annual Return
+    amount_response = ["{:.2f}".format(v) for k, v in amount_CVaR.items()]
+
+    # pie chart
+    latest_weight_CVaR_response = {asset: weight for weight, asset in zip(weight_CVaR[-1], get_assets())}
+    latest_weight_CVaR_after_sorted = sorted(latest_weight_CVaR_response.items(), key=lambda x: x[1], reverse=True)
+    top_10_assets_name = [x[0] for x in latest_weight_CVaR_after_sorted[:10]]
+    top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_CVaR_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_CVaR_after_sorted[10:]]))
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+
+    model_name = "CVaR"
+
+    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+
+
+def models_Omega(amount):
+    price = get_prices()
+    weight_Omega = get_weight_Omega()
+    amount_Omega = {0: amount}
+    allocate_Omega = {}
+    shares_Omega = {}
+    period = len(weight_Omega)
+    assets = len(weight_Omega[0])
+    for i in range(period):
+        allocate_Omega[i] = [0 for x in range(assets)]
+        shares_Omega[i] = [0 for x in range(assets)]
+
+        if i != 0:
+            amount_Omega[i] = sum(price[i][j] * shares_Omega[i - 1][j] for j in range(assets))
+
+        for j in range(assets):
+            allocate_Omega[i][j] = amount_Omega[i] * weight_Omega[i][j]
+            shares_Omega[i][j] = allocate_Omega[i][j] / price[i][j]
+
+    periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
+
+    # ROI
+    roi = {0: 0.0}
+    for i in range(1, period):
+        roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]
+
+    # Annual Return
+    amount_response = ["{:.2f}".format(v) for k, v in amount_Omega.items()]
+
+    # pie chart
+    latest_weight_Omega_response = {asset: weight for weight, asset in zip(weight_Omega[-1], get_assets())}
+    latest_weight_Omega_after_sorted = sorted(latest_weight_Omega_response.items(), key=lambda x: x[1], reverse=True)
+    top_10_assets_name = [x[0] for x in latest_weight_Omega_after_sorted[:10]]
+    top_10_assets_name.append('Others')
+    top_10_assets_weight = [x[1] * 100 for x in latest_weight_Omega_after_sorted[:10]]
+    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_Omega_after_sorted[10:]]))
+    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
+    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+
+    model_name = "Omega"
+
+    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+
+
+# @login_required
+# def save_portfolio(request):
+#     # get sharpe ratio
+#     spr = float(request.POST['spr'])
+#     amount = float(request.POST['amt'])
+#     user_id = request.user.id
+#     with connection.cursor() as cursor:
+#         cursor.execute("insert into portfolio_portfolio (risk_preference, amount, user_id) values (%s, %s, %s);" % (spr, amount, user_id))
+#     return HttpResponse('數據儲存成功')

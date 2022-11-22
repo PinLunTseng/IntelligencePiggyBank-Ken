@@ -12,17 +12,6 @@ class CreateUserForm(forms.Form):
     email = forms.EmailField()
 
 
-class RiskPreferenceMeasureForm01(forms.Form):
-    question01_01 = forms.CharField()
-    question01_02 = forms.CharField()
-    question01_03 = forms.ChoiceField()
-
-
-class RiskPreferenceMeasureForm02(forms.Form):
-    question02_01 = forms.CharField()
-    question02_02 = forms.CharField()
-
-
 class PictureForm(forms.Form):
     label01 = '1. When faced with a major financial decision, are you more concerned about the possible losses or the possible gains?'
     label02 = '2. Investments can go up and down in value, and experts often say you should be prepared to weather a downturn. By how much could the total value of all your investments go down before you would begin to feel uncomfortable?'
@@ -37,70 +26,70 @@ class PictureForm(forms.Form):
     label11 = '11. If you had to invest $500,000 for retirement, which of the following'
     label12 = '12. Compared to others, how would you rate your willingness to take financial risks?'
 
-    CHOICES01 = [(1, "Always the possible losses"),
-                 (2, "Usually the possible losses"),
-                 (3, "Usually the possible gains"),
-                 (4, "Always the possible gains"), ]
+    CHOICES01 = [(0, "Always the possible losses"),
+                 (0.33, "Usually the possible losses"),
+                 (0.66, "Usually the possible gains"),
+                 (1, "Always the possible gains"), ]
 
-    CHOICES02 = [(1, "Any fall in value would make me feel uncomfortable"),
-                 (2, "10%"),
-                 (3, "20%"),
-                 (4, "33%"),
-                 (5, "50%"),
-                 (6, "More than 50%"), ]
+    CHOICES02 = [(0, "Any fall in value would make me feel uncomfortable"),
+                 (0.2, "10%"),
+                 (0.4, "20%"),
+                 (0.6, "33%"),
+                 (0.8, "50%"),
+                 (1, "More than 50%"), ]
 
-    CHOICES03 = [(1, "A sure gain of $500"),
-                 (2, "A 50% chance to gain $1,000 and a 50% chance to gain nothing"), ]
+    CHOICES03 = [(0, "A sure gain of $500"),
+                 (1, "A 50% chance to gain $1,000 and a 50% chance to gain nothing"), ]
 
-    CHOICES04 = [(1, "A sure gain of $500"),
-                 (2, "A 50% chance to gain $1,000 and a 50% chance to gain nothing"), ]
+    CHOICES04 = [(0, "A sure gain of $500"),
+                 (1, "A 50% chance to gain $1,000 and a 50% chance to gain nothing"), ]
 
-    CHOICES05 = [(1, "Always buy lower-risk assets"),
-                 (2, "Mostly buy lower-risk assets"),
-                 (3, "Mostly buy higher - risk assets"),
-                 (4, "Always buy higher-risk assets"), ]
+    CHOICES05 = [(0, "Always buy lower-risk assets"),
+                 (0.33, "Mostly buy lower-risk assets"),
+                 (0.66, "Mostly buy higher - risk assets"),
+                 (1, "Always buy higher-risk assets"), ]
 
-    CHOICES06 = [(1, "A 10% drop (retirement assets drop $50,000 to a value of $450,000)"),
-                 (2, "A 20% drop (retirement assets drop $100,000 to a value of $400,000)"),
-                 (3, "A 30% drop (retirement assets drop $150,000 to a value of $350,000)"),
-                 (4, "A 40% drop (retirement assets drop $200,000 to a value of $300,000)"),
-                 (5, "A 50% drop (retirement assets drop $250,000 to a value of $250,000)"), ]
+    CHOICES06 = [(0, "A 10% drop (retirement assets drop $50,000 to a value of $450,000)"),
+                 (0.25, "A 20% drop (retirement assets drop $100,000 to a value of $400,000)"),
+                 (0.5, "A 30% drop (retirement assets drop $150,000 to a value of $350,000)"),
+                 (0.75, "A 40% drop (retirement assets drop $200,000 to a value of $300,000)"),
+                 (1, "A 50% drop (retirement assets drop $250,000 to a value of $250,000)"), ]
 
-    CHOICES07 = [(1, "Very small"),
-                 (2, "Small"),
-                 (3, "Medium"),
-                 (4, "Large"),
-                 (5, "Very large"), ]
+    CHOICES07 = [(0, "Very small"),
+                 (0.25, "Small"),
+                 (0.5, "Medium"),
+                 (0.75, "Large"),
+                 (1, "Very large"), ]
 
-    CHOICES08 = [(1, "Very small"),
-                 (2, "Small"),
-                 (3, "Medium"),
-                 (4, "Large"),
-                 (5, "Very large"), ]
+    CHOICES08 = [(0, "Very small"),
+                 (0.25, "Small"),
+                 (0.5, "Medium"),
+                 (0.75, "Large"),
+                 (1, "Very large"), ]
 
-    CHOICES09 = [(1, "Very small"),
-                 (2, "Small"),
-                 (3, "Medium"),
-                 (4, "Large"),
-                 (5, "Very large"), ]
+    CHOICES09 = [(0, "Very small"),
+                 (0.25, "Small"),
+                 (0.5, "Medium"),
+                 (0.75, "Large"),
+                 (1, "Very large"), ]
 
-    CHOICES10 = [(1, "Very pessimistic"),
-                 (2, "Somewhat pessimistic"),
-                 (3, "Somewhat optimistic"),
-                 (4, "Very optimistic"), ]
+    CHOICES10 = [(0, "Very pessimistic"),
+                 (0.33, "Somewhat pessimistic"),
+                 (0.66, "Somewhat optimistic"),
+                 (1, "Very optimistic"), ]
 
-    CHOICES11 = [(1, "70% in low-risk investments, 30% in medium-risk investments,0% in high-risk investments"),
-                 (2, "50% in low-risk investments, 20% in medium-risk investments,30% in high-risk investments"),
-                 (3, "30% in low-risk investments, 20% in medium-risk investments,50% in high-risk investments"),
-                 (4, "0% in low-risk investments, 30% in medium-risk investments,70% in high-risk investments"), ]
+    CHOICES11 = [(0, "70% in low-risk investments, 30% in medium-risk investments,0% in high-risk investments"),
+                 (0.33, "50% in low-risk investments, 20% in medium-risk investments,30% in high-risk investments"),
+                 (0.66, "30% in low-risk investments, 20% in medium-risk investments,50% in high-risk investments"),
+                 (1, "0% in low-risk investments, 30% in medium-risk investments,70% in high-risk investments"), ]
 
-    CHOICES12 = [(1, "Extremely low risk taker"),
-                 (2, "Very low risk taker"),
-                 (3, "Low risk taker"),
-                 (4, "Average risk taker"),
-                 (5, "High risk taker"),
-                 (6, "Very high risk taker"),
-                 (7, "Extremely high risk taker"), ]
+    CHOICES12 = [(0, "Extremely low risk taker"),
+                 (0.1666, "Very low risk taker"),
+                 (0.3332, "Low risk taker"),
+                 (0.4998, "Average risk taker"),
+                 (0.6664, "High risk taker"),
+                 (0.833, "Very high risk taker"),
+                 (0.9996, "Extremely high risk taker"), ]
 
     question01 = forms.ChoiceField(choices=CHOICES01, widget=forms.RadioSelect, label=label01)
     question02 = forms.ChoiceField(choices=CHOICES02, widget=forms.RadioSelect, label=label02)
@@ -114,6 +103,14 @@ class PictureForm(forms.Form):
     question10 = forms.ChoiceField(choices=CHOICES10, widget=forms.RadioSelect, label=label10)
     question11 = forms.ChoiceField(choices=CHOICES11, widget=forms.RadioSelect, label=label11)
     question12 = forms.ChoiceField(choices=CHOICES12, widget=forms.RadioSelect, label=label12)
+    amount = forms.FloatField(min_value=0.0, label="請輸入您想投資的金額：")
 
 
+class CalculationForm(forms.Form):
+    CHOICES = [(1, "Mean-Variance model: 均異模型"),
+     (2, "Conditional Value at Risk model: 條件風險值模型"),
+     (3, "Omega ratio model: Omega比率模型"),]
+    label = '請選擇您所偏好之投資組合最佳化模型'
+    model = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect, label=label)
+    amount = forms.FloatField(min_value=0.0, label="請輸入您想投資的金額：")
 
