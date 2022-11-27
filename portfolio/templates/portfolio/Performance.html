@@ -120,7 +120,7 @@
         <div class="u-expanded-width u-list u-list-1">
             {{model_name}}
             <div class="Potofolio">
-                <h2>權重</h2>
+                <h2>投資標的權重-依投資權重劃分</h2>
                 <figure class="highcharts-figure">
                     <article id="Potofolio"></article>
                 </figure>
@@ -323,46 +323,130 @@
 
 
             </script>
+            <div class="portfolioOrderByIndusrty">
+                <h2>投資標的權重-依投資產業劃分</h2>
+                <figure class="highcharts-figure">
+                    <article id="portfolioOrderByIndusrty"></article>
+                </figure>
+            </div>
+            <script>
+    var result = [
+            {% for x, y in pie_chart_order_by_industry %}
+                ['{{x}}', {{y}}],
+            {% endfor %}
+    ]
+    Highcharts.chart('portfolioOrderByIndusrty', {
+      chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+      },
+      title: {
+        text: '權重'
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
+      },
+      accessibility: {
+        point: {
+          valueSuffix: '%'
+        }
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: false
+          },
+          showInLegend: true
+        }
+      },
+      series: [{
+        name: '權重',
+        colorByPoint: true,
+        data: [{
+          name: result[0][0],
+          y: result[0][1],
+          // sliced: true,
+          // selected: true
+        }, {
+          name: result[1][0],
+          y: result[1][1]
+        }, {
+          name: result[2][0],
+          y: result[2][1]
+        }, {
+          name: result[3][0],
+          y: result[3][1]
+        }, {
+          name: result[4][0],
+          y: result[4][1]
+        }, {
+          name: result[5][0],
+          y: result[5][1]
+        }, {
+          name: result[6][0],
+          y: result[6][1]
+        }, {
+          name: result[7][0],
+          y: result[7][1]
+        }, {
+          name: result[8][0],
+          y: result[8][1]
+        }, {
+          name: result[9][0],
+          y: result[9][1]
+        }, {
+          name: result[10][0],
+          y: result[10][1]
+        }
+        ]
+      }]
+    });
 
+
+
+
+
+
+
+
+            </script>
 
         </div>
     </div>
 </section>
 <div>
-    <li>Company, Weight, YFinance, OfficialWebsite, Introduction</li>
-    {% for x, y in portfolio_list %}
-    <li>
-        {{x}},
-        {{y}},
-        <a href="https://finance.yahoo.com/quote/{{x}}" target="_blank">{{x}}</a>,
-        <a href="https://www.tesla.com/" target="_blank">{{x}}</a>,
-<!--        <a href="https://www.tesla.com/" target="_blank" onmouseover="displayPrompt()" onmouseout="cancelDisplayPrompt()">{{x}}</a>-->
-        <a href="/portfolio/information/{{x}}" target="_blank">More Information!</a>
+    <table border="1">
 
-    </li>
+    <tr>
+        <th>Company name</th>
+        <th>Weight</th>
+        <th>Recommend Score</th>
+        <th>More information</th>
+    </tr>
+
+<!--    <li>Company name with hyper link(YFinance), Weight, Recommend Score, More information</li>-->
+    {% for name, weight, scores, yf_link, top_10_name_short_cut in portfolio_list %}
+<!--    <li>-->
+<!--        <a href="{{yf_link}}" target="_blank">{{name}}</a>,-->
+<!--        {{weight}}-->
+<!--        {{scores}}-->
+<!--        <a href="/portfolio/information/{{top_10_name_short_cut}}" target="_blank">More Information!</a>-->
+<!--    </li>-->
+
+    <tr>
+        <td><a href="{{yf_link}}" target="_blank">{{name}}</a>,</td>
+        <td>{{weight}}</td>
+        <td>{{scores}}</td>
+        <td><a href="/portfolio/information/{{top_10_name_short_cut}}" target="_blank">More Information!</a></td>
+    </tr>
 
     {% endfor %}
-    <div class="hide">I am shown when someone hovers over the div above.</div>
-    <style>
-            .hide {
-              display: none;
-            }
 
-            .myDIV:hover + .hide {
-              display: block;
-              color: red;
-            }
-
-    </style>
-    <li class="prompt">This is a prompt</li>
-    <script>
-        function displayPrompt() {
-            document.querySelector(".prompt").style.display = "contents"
-        }
-        function cancelDisplayPrompt() {
-            document.querySelector(".prompt").style.display = "none"
-        }
-    </script>
+    </table>
 
 
 </div>

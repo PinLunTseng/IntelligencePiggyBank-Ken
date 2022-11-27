@@ -43,3 +43,18 @@ class Portfolio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     risk_preference = models.FloatField(default=0)
     amount = models.FloatField(default=0)
+
+
+class AssetsDetail(models.Model):
+    name = models.TextField()
+    full_name = models.TextField()
+    industry_code = models.IntegerField()
+    recommend_score = models.FloatField()
+    introduction = models.TextField()
+    link_yahoo_finance = models.TextField()
+    link_official_website = models.TextField()
+
+
+class Industry(models.Model):
+    name = models.TextField()
+

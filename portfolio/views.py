@@ -327,7 +327,7 @@ def calculation(request):
         '''
 
         if model == 1:
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi, portfolio_list = models_MV(amount)
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi, portfolio_list, pie_chart_order_by_industry = models_MV(amount)
         elif model == 2:
             model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
         else:
@@ -369,8 +369,14 @@ def models_MV(amount):
     amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
 
     # pie chart
-    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
+    # latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
+    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets_full_name())}
     latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
+
+    # name shortcut for searching information
+    latest_weight_mv_response2 = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
+    latest_weight_mv_after_sorted2 = sorted(latest_weight_mv_response2.items(), key=lambda x: x[1], reverse=True)
+    top_10_name_short_cut = [x[0] for x in latest_weight_mv_after_sorted2[:10]]
 
     top_10_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
     top_10_with_others_name = top_10_name[:]
@@ -387,8 +393,26 @@ def models_MV(amount):
     model_name = "Mean-Variance model consists of transaction cost and short selling."
 
     # portfolio list function
-    portfolio_list = zip(top_10_name, top_10_weight_format)
-    return model_name, top_10_weight_and_name, periods, amount_response, roi, portfolio_list
+    yf_link = get_YFinance_by_full_name(top_10_name)
+    scores = get_recommend_score_by_full_name(top_10_name)
+    portfolio_list = zip(top_10_name, top_10_weight_format, scores, yf_link, top_10_name_short_cut)
+    # print(top_10_name)
+    # print(get_YFinance_by_full_name(top_10_name))
+
+    # test
+    industry = map_assets_weight_to_industry(weight_mv[-1])
+    industry_after_sorted = sorted(industry.items(), key=lambda x: x[1], reverse=True)
+    industry_top_10_names = [x[0] for x in industry_after_sorted[:10]]
+    industry_top_10_names.append('Others')
+
+    industry_top_10_weights = [x[1] for x in industry_after_sorted[:10]]
+    industry_others_weight = 1 - sum(industry_top_10_weights)
+    industry_top_10_weights.append(industry_others_weight)
+    pie_chart_order_by_industry = zip(industry_top_10_names, industry_top_10_weights)
+
+
+
+    return model_name, top_10_weight_and_name, periods, amount_response, roi, portfolio_list, pie_chart_order_by_industry
 
 
 def models_CVaR(amount):
@@ -495,22 +519,108 @@ def company_information(request, company_name):
     """
     use default data simulate database,
     should be search data from database.
+    data: introduction, official website
+    query: where name = shortcut
     """
-    stocks_introduction = {
-        'TSLA': 'Agilent Technologies, Inc. is engaged in providing application-focused solutions that include instruments, software, services and consumables for the entire laboratory workflow. The Company operates in the life sciences, diagnostics and applied chemical markets. Its life sciences and applied markets business provides application-focused solutions that include instruments and software that enable customers to identify, quantify and analyze the physical and biological properties of substances and products. Its diagnostics and genomics business includes the genomics, nucleic acid contract manufacturing and research and development, pathology, companion diagnostics, reagent partnership and biomolecular analysis businesses. Its Agilent CrossLab business spans the entire lab with its range of services portfolio, which is designed to improve customer outcomes. Its product categories include liquid chromatography (LC) systems and components, atomic absorption (AA) instruments and others.0',
-        'SBUX': 'Hi, im SBUX',
-        'GNRC': 'Hi, im GNRC',
-    }
 
     try:
-        # after database complete, use sql query to get company information
-        introduction = stocks_introduction[company_name]
-
-        # sql query
-        # with connection.cursor() as cursor:
-        #     cursor.execute("SELECT name from portfolio_assets where name='%s';" % company_name)
-        #     row = cursor.fetchone()
+        introduction, official_website = get_introduction_and_official_website_by_name(company_name)
     except Exception:
         error_message = '查無此筆資料，請確認投資標的名稱。'
     finally:
         return render(request, 'portfolio/Information.html', locals())
+
+
+def create_company_detail_in_database(request):
+    open_df = pd.read_excel("model_result/company_f.xlsx", sheet_name="company_detail").iloc[:, :9]
+    with connection.cursor() as cursor:
+        for i in range(466):
+            row_data = [open_df.iloc[i, 1], open_df.iloc[i, 2], int(open_df.iloc[i, 4]), open_df.iloc[i, 5],
+                        open_df.iloc[i, 6], open_df.iloc[i, 7], open_df.iloc[i, 8]]
+            cursor.execute("insert into portfolio_assetsdetail (name, full_name, industry_code, recommend_score, introduction, link_yahoo_finance, link_official_website) VALUES (%s, %s, %s, %s, %s, %s, %s);",
+                           row_data)
+    return HttpResponse('init success!')
+
+
+def create_industry_name_in_database(request):
+    open_df = pd.read_excel("model_result/company_f.xlsx", sheet_name="IndustryCode")
+    with connection.cursor() as cursor:
+        for i in range(83):
+            cursor.execute(
+                "insert into portfolio_industry (name) VALUES (%s);",
+                [open_df.iloc[i, 1]])
+    return HttpResponse("Complete")
+
+
+def get_assets_full_name():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT full_name from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+        assets = [x[0] for x in row]
+        return assets
+
+
+def get_YFinance_by_full_name(names):
+    yf_list = []
+    for name in names:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT link_yahoo_finance from portfolio_assetsdetail where full_name=%s;", [name])
+            row = cursor.fetchall()
+            yf_list.append(row[0][0])
+    return yf_list
+
+
+def get_recommend_score_by_full_name(names):
+    score_list = []
+    for name in names:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT recommend_score from portfolio_assetsdetail where full_name=%s;", [name])
+            row = cursor.fetchall()
+            score_list.append(row[0][0])
+    return score_list
+
+
+def get_introduction_and_official_website_by_name(name):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT introduction, link_official_website from portfolio_assetsdetail where name=%s;", [name])
+        row = cursor.fetchall()
+        print(row[0])
+    #     type(row) -> [(intro, link)]
+    return row[0]
+
+
+def map_assets_weight_to_industry(assets_weight):
+    # assets: weight -> industry: weight ! industry must be duplicated
+    industry_code = get_industry_code()
+    industry = get_industry()
+    assets_dictionary_order_by_industry_code = {}
+    for code, weight in zip(industry_code, assets_weight):
+        if code in assets_dictionary_order_by_industry_code:
+            assets_dictionary_order_by_industry_code[code] += weight
+        else:
+            assets_dictionary_order_by_industry_code[code] = weight
+
+    dic = {industry[k - 1]: v
+           for k, v in assets_dictionary_order_by_industry_code.items()}
+
+    return dic
+
+
+def get_industry_code():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT industry_code from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+def get_industry():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT name from portfolio_industry;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+
+
+def fn_test(request):
+    return HttpResponse(get_industry())

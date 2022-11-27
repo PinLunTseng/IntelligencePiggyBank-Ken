@@ -14,4 +14,9 @@ urlpatterns = [
     # path('portfolio_list/', views.portfolio_list),
 
     path('information/<str:company_name>', views.company_information, name='company_information'),
+
+    # init assets detail
+    # path('init/', views.create_company_detail_in_database),
+    # path('init/', views.create_industry_name_in_database),
+    path('test/', views.fn_test),
 ]
