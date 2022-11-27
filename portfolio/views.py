@@ -175,15 +175,15 @@ def create_WOmega_weight():
                     [float(open_df.iloc[i, j]), j + 1, i + 1])
 
 
-def init_db(request):
-    create_assets()
-    create_period()
-    create_index()
-    create_price()
-    create_MV_weight()
-    create_CVaR_weight()
-    create_WOmega_weight()
-    return HttpResponse('Complete create all data.')
+# def init_db(request):
+#     create_assets()
+#     create_period()
+#     create_index()
+#     create_price()
+#     create_MV_weight()
+#     create_CVaR_weight()
+#     create_WOmega_weight()
+#     return HttpResponse('Complete create all data.')
 
 
 '''
@@ -327,7 +327,7 @@ def calculation(request):
         '''
 
         if model == 1:
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_MV(amount)
+            model_name, top_10_assets_weight_and_name, periods, amount_response, roi, portfolio_list = models_MV(amount)
         elif model == 2:
             model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
         else:
@@ -371,15 +371,24 @@ def models_MV(amount):
     # pie chart
     latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
     latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
 
-    model_name = "MV"
-    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+    top_10_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
+    top_10_with_others_name = top_10_name[:]
+    top_10_with_others_name.append('Others')
+
+    top_10_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
+    top_10_with_others_weight = top_10_weight[:]
+    top_10_with_others_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
+
+    top_10_weight_format = ["%.2f" % x for x in top_10_weight]
+    top_10_with_others_weight_format = ["%.2f" % x for x in top_10_with_others_weight]
+    top_10_weight_and_name = zip(top_10_with_others_name, top_10_with_others_weight_format)
+
+    model_name = "Mean-Variance model consists of transaction cost and short selling."
+
+    # portfolio list function
+    portfolio_list = zip(top_10_name, top_10_weight_format)
+    return model_name, top_10_weight_and_name, periods, amount_response, roi, portfolio_list
 
 
 def models_CVaR(amount):
@@ -421,7 +430,7 @@ def models_CVaR(amount):
     top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
     top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
 
-    model_name = "CVaR"
+    model_name = "Conditional Value-at-Risk model"
 
     return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
 
@@ -465,7 +474,7 @@ def models_Omega(amount):
     top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
     top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
 
-    model_name = "Omega"
+    model_name = "Omega model"
 
     return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
 
@@ -479,3 +488,29 @@ def models_Omega(amount):
 #     with connection.cursor() as cursor:
 #         cursor.execute("insert into portfolio_portfolio (risk_preference, amount, user_id) values (%s, %s, %s);" % (spr, amount, user_id))
 #     return HttpResponse('數據儲存成功')
+
+
+# 使用股票名稱搜索股票介紹, 不提供外部直接使用服務
+def company_information(request, company_name):
+    """
+    use default data simulate database,
+    should be search data from database.
+    """
+    stocks_introduction = {
+        'TSLA': 'Agilent Technologies, Inc. is engaged in providing application-focused solutions that include instruments, software, services and consumables for the entire laboratory workflow. The Company operates in the life sciences, diagnostics and applied chemical markets. Its life sciences and applied markets business provides application-focused solutions that include instruments and software that enable customers to identify, quantify and analyze the physical and biological properties of substances and products. Its diagnostics and genomics business includes the genomics, nucleic acid contract manufacturing and research and development, pathology, companion diagnostics, reagent partnership and biomolecular analysis businesses. Its Agilent CrossLab business spans the entire lab with its range of services portfolio, which is designed to improve customer outcomes. Its product categories include liquid chromatography (LC) systems and components, atomic absorption (AA) instruments and others.0',
+        'SBUX': 'Hi, im SBUX',
+        'GNRC': 'Hi, im GNRC',
+    }
+
+    try:
+        # after database complete, use sql query to get company information
+        introduction = stocks_introduction[company_name]
+
+        # sql query
+        # with connection.cursor() as cursor:
+        #     cursor.execute("SELECT name from portfolio_assets where name='%s';" % company_name)
+        #     row = cursor.fetchone()
+    except Exception:
+        error_message = '查無此筆資料，請確認投資標的名稱。'
+    finally:
+        return render(request, 'portfolio/Information.html', locals())
