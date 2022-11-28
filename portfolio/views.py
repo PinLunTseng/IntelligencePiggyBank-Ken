@@ -4,8 +4,9 @@ from django.contrib.auth import views as auth_views, authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import pandas as pd
+import random
 from django.urls import reverse
-
+from django.contrib import messages
 from .form import LoginForm, CreateUserForm, PictureForm, CalculationForm
 from django.db import connection
 
@@ -190,8 +191,12 @@ def create_WOmega_weight():
 =================================
 '''
 
+
 # 問卷試算
 def questionnaire(request):
+    if not request.user.is_authenticated:
+        error_message = "此功能受到保護，請先登入。"
+        return render(request, "portfolio/SingIn.html", locals())
     if request.method == "POST":
         question01 = request.POST['question01']
         question02 = request.POST['question02']
@@ -218,7 +223,7 @@ def questionnaire(request):
                   question10,
                   question11,
                   question12, ]
-        sharpe_ratio = sum(float(x) for x in result)/12
+        sharpe_ratio = sum(float(x) for x in result) / 12
         # 取得風險偏好與金額，直接做試算
         if sharpe_ratio <= 0.3:
             # cvar
@@ -250,6 +255,14 @@ def questionnaire(request):
 
 # 首頁
 def home(request):
+    li = [0 for x in range(40)]
+    for i in range(1, len(li)):
+        li[i] = li[i - 1] + random.random() * 15 - 5
+    port01 = li
+    li = [0 for x in range(40)]
+    for i in range(1, len(li)):
+        li[i] = li[i - 1] + random.random() * 15 - 5
+    port02 = li
     return render(request, 'portfolio/Home.html', locals())
 
 
@@ -327,14 +340,16 @@ def calculation(request):
         '''
 
         if model == 1:
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi, portfolio_list, pie_chart_order_by_industry = models_MV(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_MV(amount)
         elif model == 2:
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_CVaR(amount)
         else:
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_Omega(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_Omega(amount)
     else:
         form = CalculationForm()
-        # return render(request, "portfolio/Calculation.html", locals())
         return render(request, "portfolio/Calculation.html", locals())
     return render(request, "portfolio/Performance.html", locals())
 
@@ -360,59 +375,55 @@ def models_MV(amount):
 
     periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
 
-    # ROI
+    # return of investment line chart
     roi = {0: 0.0}
     for i in range(1, period):
         roi[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
 
-    # Annual Return
+    # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
 
-    # pie chart
-    # latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
-    latest_weight_mv_response = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets_full_name())}
-    latest_weight_mv_after_sorted = sorted(latest_weight_mv_response.items(), key=lambda x: x[1], reverse=True)
-
-    # name shortcut for searching information
-    latest_weight_mv_response2 = {asset: weight for weight, asset in zip(weight_mv[-1], get_assets())}
-    latest_weight_mv_after_sorted2 = sorted(latest_weight_mv_response2.items(), key=lambda x: x[1], reverse=True)
-    top_10_name_short_cut = [x[0] for x in latest_weight_mv_after_sorted2[:10]]
-
-    top_10_name = [x[0] for x in latest_weight_mv_after_sorted[:10]]
-    top_10_with_others_name = top_10_name[:]
-    top_10_with_others_name.append('Others')
-
-    top_10_weight = [x[1] * 100 for x in latest_weight_mv_after_sorted[:10]]
-    top_10_with_others_weight = top_10_weight[:]
-    top_10_with_others_weight.append(sum([x[1] * 100 for x in latest_weight_mv_after_sorted[10:]]))
-
-    top_10_weight_format = ["%.2f" % x for x in top_10_weight]
-    top_10_with_others_weight_format = ["%.2f" % x for x in top_10_with_others_weight]
-    top_10_weight_and_name = zip(top_10_with_others_name, top_10_with_others_weight_format)
-
-    model_name = "Mean-Variance model consists of transaction cost and short selling."
-
-    # portfolio list function
-    yf_link = get_YFinance_by_full_name(top_10_name)
-    scores = get_recommend_score_by_full_name(top_10_name)
-    portfolio_list = zip(top_10_name, top_10_weight_format, scores, yf_link, top_10_name_short_cut)
-    # print(top_10_name)
-    # print(get_YFinance_by_full_name(top_10_name))
-
-    # test
+    # top 10 stocks weight pie chart order by industry
     industry = map_assets_weight_to_industry(weight_mv[-1])
     industry_after_sorted = sorted(industry.items(), key=lambda x: x[1], reverse=True)
     industry_top_10_names = [x[0] for x in industry_after_sorted[:10]]
     industry_top_10_names.append('Others')
-
     industry_top_10_weights = [x[1] for x in industry_after_sorted[:10]]
     industry_others_weight = 1 - sum(industry_top_10_weights)
     industry_top_10_weights.append(industry_others_weight)
     pie_chart_order_by_industry = zip(industry_top_10_names, industry_top_10_weights)
+    industry_b4_mapping = get_industry_code()
+    industry = get_industry()
+    industry_after_mapping = [x for x in range(len(industry_b4_mapping))]
+    for i in range(len(industry_b4_mapping)):
+        industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
+
+    # top 10 stocks detail list
+    data = zip(
+        get_assets_full_name(),
+        weight_mv[-1],
+        get_recommend_score(),
+        industry_after_mapping,
+        [x[:100] + "..." for x in get_introduction()],
+        get_official_website(),
+        get_yahoo_finance_website(),
+    )
+    data = sorted(data, key=lambda x: x[1], reverse=True)
+    port_list = data[:10]
+    # format present weight
 
 
 
-    return model_name, top_10_weight_and_name, periods, amount_response, roi, portfolio_list, pie_chart_order_by_industry
+
+    # top 10 stocks weight pie chart order by weight
+    top_10 = data[:10]
+    total_top_10_weight = 0
+    for i in data[:10]:
+        total_top_10_weight += i[1]
+    top_10_weight_and_name = [(x[0], x[1]) for x in top_10]
+    top_10_weight_and_name.append(('Others', 1-total_top_10_weight))
+    model_name = "Mean-Variance model consists of transaction cost and short selling."
+    return model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list
 
 
 def models_CVaR(amount):
@@ -436,27 +447,51 @@ def models_CVaR(amount):
 
     periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
 
-    # ROI
+    # return of investment line chart
     roi = {0: 0.0}
     for i in range(1, period):
         roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]
 
-    # Annual Return
+    # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_CVaR.items()]
 
-    # pie chart
-    latest_weight_CVaR_response = {asset: weight for weight, asset in zip(weight_CVaR[-1], get_assets())}
-    latest_weight_CVaR_after_sorted = sorted(latest_weight_CVaR_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_CVaR_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_CVaR_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_CVaR_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+    # top 10 stocks weight pie chart order by industry
+    industry = map_assets_weight_to_industry(weight_CVaR[-1])
+    industry_after_sorted = sorted(industry.items(), key=lambda x: x[1], reverse=True)
+    industry_top_10_names = [x[0] for x in industry_after_sorted[:10]]
+    industry_top_10_names.append('Others')
+    industry_top_10_weights = [x[1] for x in industry_after_sorted[:10]]
+    industry_others_weight = 1 - sum(industry_top_10_weights)
+    industry_top_10_weights.append(industry_others_weight)
+    pie_chart_order_by_industry = zip(industry_top_10_names, industry_top_10_weights)
+    industry_b4_mapping = get_industry_code()
+    industry = get_industry()
+    industry_after_mapping = [x for x in range(len(industry_b4_mapping))]
+    for i in range(len(industry_b4_mapping)):
+        industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
 
-    model_name = "Conditional Value-at-Risk model"
+    # top 10 stocks detail list
+    data = zip(
+        get_assets_full_name(),
+        weight_CVaR[-1],
+        get_recommend_score(),
+        industry_after_mapping,
+        [x[:100] + "..." for x in get_introduction()],
+        get_official_website(),
+        get_yahoo_finance_website(),
+    )
+    data = sorted(data, key=lambda x: x[1], reverse=True)
+    port_list = data[:10]
 
-    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+    # top 10 stocks weight pie chart order by weight
+    top_10 = data[:10]
+    total_top_10_weight = 0
+    for i in data[:10]:
+        total_top_10_weight += i[1]
+    top_10_weight_and_name = [(x[0], x[1]) for x in top_10]
+    top_10_weight_and_name.append(('Others', 1 - total_top_10_weight))
+    model_name = "Mean-Variance model consists of transaction cost and short selling."
+    return model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list
 
 
 def models_Omega(amount):
@@ -480,27 +515,51 @@ def models_Omega(amount):
 
     periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
 
-    # ROI
+    # return of investment line chart
     roi = {0: 0.0}
     for i in range(1, period):
         roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]
 
-    # Annual Return
+    # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_Omega.items()]
 
-    # pie chart
-    latest_weight_Omega_response = {asset: weight for weight, asset in zip(weight_Omega[-1], get_assets())}
-    latest_weight_Omega_after_sorted = sorted(latest_weight_Omega_response.items(), key=lambda x: x[1], reverse=True)
-    top_10_assets_name = [x[0] for x in latest_weight_Omega_after_sorted[:10]]
-    top_10_assets_name.append('Others')
-    top_10_assets_weight = [x[1] * 100 for x in latest_weight_Omega_after_sorted[:10]]
-    top_10_assets_weight.append(sum([x[1] * 100 for x in latest_weight_Omega_after_sorted[10:]]))
-    top_10_assets_weight_format = ["%.2f" % x for x in top_10_assets_weight]
-    top_10_assets_weight_and_name = zip(top_10_assets_name, top_10_assets_weight_format)
+    # top 10 stocks weight pie chart order by industry
+    industry = map_assets_weight_to_industry(weight_Omega[-1])
+    industry_after_sorted = sorted(industry.items(), key=lambda x: x[1], reverse=True)
+    industry_top_10_names = [x[0] for x in industry_after_sorted[:10]]
+    industry_top_10_names.append('Others')
+    industry_top_10_weights = [x[1] for x in industry_after_sorted[:10]]
+    industry_others_weight = 1 - sum(industry_top_10_weights)
+    industry_top_10_weights.append(industry_others_weight)
+    pie_chart_order_by_industry = zip(industry_top_10_names, industry_top_10_weights)
+    industry_b4_mapping = get_industry_code()
+    industry = get_industry()
+    industry_after_mapping = [x for x in range(len(industry_b4_mapping))]
+    for i in range(len(industry_b4_mapping)):
+        industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
 
-    model_name = "Omega model"
+    # top 10 stocks detail list
+    data = zip(
+        get_assets_full_name(),
+        weight_Omega[-1],
+        get_recommend_score(),
+        industry_after_mapping,
+        [x[:100] + "..." for x in get_introduction()],
+        get_official_website(),
+        get_yahoo_finance_website(),
+    )
+    data = sorted(data, key=lambda x: x[1], reverse=True)
+    port_list = data[:10]
 
-    return model_name, top_10_assets_weight_and_name, periods, amount_response, roi
+    # top 10 stocks weight pie chart order by weight
+    top_10 = data[:10]
+    total_top_10_weight = 0
+    for i in data[:10]:
+        total_top_10_weight += i[1]
+    top_10_weight_and_name = [(x[0], x[1]) for x in top_10]
+    top_10_weight_and_name.append(('Others', 1 - total_top_10_weight))
+    model_name = "Mean-Variance model consists of transaction cost and short selling."
+    return model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list
 
 
 # @login_required
@@ -537,8 +596,9 @@ def create_company_detail_in_database(request):
         for i in range(466):
             row_data = [open_df.iloc[i, 1], open_df.iloc[i, 2], int(open_df.iloc[i, 4]), open_df.iloc[i, 5],
                         open_df.iloc[i, 6], open_df.iloc[i, 7], open_df.iloc[i, 8]]
-            cursor.execute("insert into portfolio_assetsdetail (name, full_name, industry_code, recommend_score, introduction, link_yahoo_finance, link_official_website) VALUES (%s, %s, %s, %s, %s, %s, %s);",
-                           row_data)
+            cursor.execute(
+                "insert into portfolio_assetsdetail (name, full_name, industry_code, recommend_score, introduction, link_yahoo_finance, link_official_website) VALUES (%s, %s, %s, %s, %s, %s, %s);",
+                row_data)
     return HttpResponse('init success!')
 
 
@@ -620,7 +680,33 @@ def get_industry():
     return [x[0] for x in row]
 
 
+def get_official_website():
+    with connection.cursor() as cursor:
+        cursor.execute("select link_official_website from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+def get_yahoo_finance_website():
+    with connection.cursor() as cursor:
+        cursor.execute("select link_yahoo_finance from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+def get_recommend_score():
+    with connection.cursor() as cursor:
+        cursor.execute("select recommend_score from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+def get_introduction():
+    with connection.cursor() as cursor:
+        cursor.execute("select introduction from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
 
 
 def fn_test(request):
-    return HttpResponse(get_industry())
+    return HttpResponse(get_official_website())

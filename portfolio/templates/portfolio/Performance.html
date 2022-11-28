@@ -93,20 +93,12 @@
                     <div class="u-inner-container-layout u-sidenav-overflow">
                         <div class="u-menu-close"></div>
                         <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-3">
-                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="About.html">關於我們</a>
-                            </li>
-                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="Contact.html">會員專區</a>
-                                <div class="u-nav-popup">
-                                    <ul class="u-h-spacing-20 u-nav u-unstyled u-v-spacing-10">
-                                        <li class="u-nav-item"><a class="u-button-style u-nav-link" href="#">SingIn</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="SingUp.html">註冊</a>
-                            </li>
-                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="SingIn.html">登入登出</a>
-                            </li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/about">關於我們</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/questionnaire">問卷試算</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/calculation">試算</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signUp">註冊</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signIn">登入</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signOut">登出</a></li>
                         </ul>
                     </div>
                 </div>
@@ -118,16 +110,16 @@
 <section class="u-clearfix u-section-1" id="sec-c439">
     <div class="u-clearfix u-sheet u-sheet-1">
         <div class="u-expanded-width u-list u-list-1">
-            {{model_name}}
+            <h1>{{model_name}}</h1>
+
             <div class="Potofolio">
-                <h2>投資標的權重-依投資權重劃分</h2>
                 <figure class="highcharts-figure">
                     <article id="Potofolio"></article>
                 </figure>
             </div>
             <script>
     var result = [
-            {% for x, y in top_10_assets_weight_and_name %}
+            {% for x, y in top_10_weight_and_name %}
                 ['{{x}}', {{y}}],
             {% endfor %}
     ]
@@ -139,7 +131,7 @@
         type: 'pie'
       },
       title: {
-        text: '權重'
+        text: '投資標的之權重'
       },
       tooltip: {
         pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
@@ -209,10 +201,15 @@
 
 
 
+
+
+
             </script>
+
             <div id="AnnvalAssetReturns" class="w3-container city">
+
                 <div class="AnnvalAssetReturns">
-                    <h2>年度資產回報</h2>
+
                     <figure class="highcharts-figure">
                         <article id="AnnvalAssetReturns"></article>
                     </figure>
@@ -242,7 +239,7 @@
         enabled: false
       },
       series: [{
-        name: 'Oslo',
+        name: 'Provided Portfolio',
         data: [
             {% for amount in amount_response %}
                 {{ amount }},
@@ -260,28 +257,35 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
             </script>
+
             <div id="ROI" class="w3-container city">
+
                 <div class="ROI">
-                    <h2>投資報酬率</h2>
+
                     <figure class="highcharts-figure">
                         <article id="ROI"></article>
                     </figure>
                 </div>
-                <div class="ROI">
-                    <h2>投資報酬率</h2>
-                    <figure class="highcharts-figure">
-                        <article id="ROI"></article>
-                    </figure>
-                </div>
+
             </div>
             <script>
         Highcharts.chart('ROI', {
-
           title: {
             text: '投資報酬率'
           },
-
           xAxis: {
             categories: [
             {% for period in periods%}
@@ -289,13 +293,11 @@
             {% endfor %}
             ]
           },
-
           yAxis: {
             title: {
               text: '報酬率'
             }
           },
-
           tooltip: {
             headerFormat: '<b>{series.name}</b><br />',
             pointFormat: '{point.x}%'
@@ -314,17 +316,9 @@
 
 
 
-
-
-
-
-
-
-
-
             </script>
+
             <div class="portfolioOrderByIndusrty">
-                <h2>投資標的權重-依投資產業劃分</h2>
                 <figure class="highcharts-figure">
                     <article id="portfolioOrderByIndusrty"></article>
                 </figure>
@@ -343,7 +337,7 @@
         type: 'pie'
       },
       title: {
-        text: '權重'
+        text: '投資標的權重-依產業劃分'
       },
       tooltip: {
         pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
@@ -413,43 +407,51 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
             </script>
 
-        </div>
-    </div>
+            <div>
+                <!--                    # name, weight, score, industry, intro_100, official_website, yfinance-->
+                <p>Company, Weight, RecommendScore</p>
+                {% for data in port_list %}
+                <div class="button">
+                    <nobr>{{data.0}}, {{data.1}}, {{data.2}}</nobr>
+                    <div class="hover">
+                        <hr>
+                        <p>Industry: {{data.3}}</p>
+                        <p>Introduction: {{data.4}}</p>
+                        <a href="{{data.5}}" target="_blank">Click me to official website!</a>,
+                        <a href="{{data.6}}" target="_blank">Click me to get stocks information!</a>,
+                        <hr>
+                    </div>
+
+                </div>
+                {% endfor %}
+                <p>* We use yahoo！finance recommendation rating to recommend how strongest we suggest users to buying this stock. 1 suggests strong buying, and 5 is ready to sell.</p>
+
+            </div>
+
+            <style>
+                .button:hover .hover{
+                  display:block;
+                }
+                .hover{
+                  display:none;
+                }
+
+            </style>
 </section>
-<div>
-    <table border="1">
-
-    <tr>
-        <th>Company name</th>
-        <th>Weight</th>
-        <th>Recommend Score</th>
-        <th>More information</th>
-    </tr>
-
-<!--    <li>Company name with hyper link(YFinance), Weight, Recommend Score, More information</li>-->
-    {% for name, weight, scores, yf_link, top_10_name_short_cut in portfolio_list %}
-<!--    <li>-->
-<!--        <a href="{{yf_link}}" target="_blank">{{name}}</a>,-->
-<!--        {{weight}}-->
-<!--        {{scores}}-->
-<!--        <a href="/portfolio/information/{{top_10_name_short_cut}}" target="_blank">More Information!</a>-->
-<!--    </li>-->
-
-    <tr>
-        <td><a href="{{yf_link}}" target="_blank">{{name}}</a>,</td>
-        <td>{{weight}}</td>
-        <td>{{scores}}</td>
-        <td><a href="/portfolio/information/{{top_10_name_short_cut}}" target="_blank">More Information!</a></td>
-    </tr>
-
-    {% endfor %}
-
-    </table>
-
-
-</div>
 
 
 </script>
@@ -492,6 +494,18 @@
       panels.forEach(p => p.classList.remove('active'))
       panels[n - 1].classList.add('active')
       }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
