@@ -227,13 +227,13 @@ def questionnaire(request):
         # 取得風險偏好與金額，直接做試算
         if sharpe_ratio <= 0.3:
             # cvar
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_CVaR(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_CVaR(amount)
         elif sharpe_ratio < 0.7:
             # omega
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_Omega(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_Omega(amount)
         else:
             # mv
-            model_name, top_10_assets_weight_and_name, periods, amount_response, roi = models_MV(amount)
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_MV(amount)
 
         return render(request, "portfolio/Performance.html", locals())
     else:
@@ -547,6 +547,7 @@ def models_Omega(amount):
         [x[:100] + "..." for x in get_introduction()],
         get_official_website(),
         get_yahoo_finance_website(),
+        get_assets_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
     port_list = data[:10]
@@ -708,5 +709,12 @@ def get_introduction():
     return [x[0] for x in row]
 
 
+def get_assets_name():
+    with connection.cursor() as cursor:
+        cursor.execute("select name from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
 def fn_test(request):
-    return HttpResponse(get_official_website())
+    return HttpResponse(get_assets_name())
