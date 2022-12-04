@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="keywords" content="">
     <meta name="description" content="">
-    <title>About</title>
+    <title>投資組合</title>
     <link rel="stylesheet" href="/static/portfolio/nicepage.css" media="screen">
     <link rel="stylesheet" href="/static/portfolio/About.css" media="screen">
     <script class="u-script" type="text/javascript" src="/static/portfolio/jquery.js" defer=""></script>
@@ -14,7 +14,9 @@
     <link id="u-theme-google-font" rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
 
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="jquery-3.6.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
@@ -28,9 +30,11 @@
     <meta name="theme-color" content="#478ac9">
     <meta property="og:title" content="About">
     <meta property="og:type" content="website">
+
+
 </head>
 <body class="u-body u-xl-mode" data-lang="en">
-<header class="u-box-shadow u-clearfix u-header u-sticky u-header" id="sec-f997" data-animation-name=""
+<header class="u-box-shadow u-clearfix u-header u-sticky u-sticky-4220 u-white u-header" id="sec-f997" data-animation-name=""
         data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
     <div class="u-clearfix u-sheet u-sheet-1">
         <a href="/portfolio/home" class="u-image u-logo u-image-1" data-image-width="1920" data-image-height="1080"
@@ -117,7 +121,7 @@
                     <article id="Potofolio"></article>
                 </figure>
             </div>
-            <script>
+    <script>
     var result = [
             {% for x, y in top_10_weight_and_name %}
                 ['{{x}}', {{y}}],
@@ -215,7 +219,7 @@
                     </figure>
                 </div>
             </div>
-            <script>
+  <script>
     Highcharts.chart('AnnvalAssetReturns', {
       chart: {
         type: 'column'
@@ -269,7 +273,7 @@
 
 
 
-            </script>
+  </script>
 
             <div id="ROI" class="w3-container city">
 
@@ -421,12 +425,12 @@
 
             </script>
 
-            <div>
+            {% comment %} <div>
                 <!--                    # name, weight, score, industry, intro_100, official_website, yfinance-->
                 <p>Company, Weight, RecommendScore</p>
                 {% for data in port_list %}
                 <div class="button">
-                    <nobr>{{data.0}}, {{data.1}}, {{data.2}}</nobr>
+                  <span style="white-space: nowrap, text-align: justify;">{{data.0}}{{data.1}}{{data.2}}</span>
                     <div class="hover">
                         <hr>
                         <p>Industry: {{data.3}}</p>
@@ -442,21 +446,77 @@
                 {% endfor %}
                 <p>* We use yahoo！finance recommendation rating to recommend how strongest we suggest users to buying this stock. 1 suggests strong buying, and 5 is ready to sell.</p>
 
-            </div>
+            </div> {% endcomment %}
 
+          
+
+            <div>
+
+              <table  style="width:100%">
+                <tr>
+                  <th>公司名稱</th>
+                  <th>權重</th>
+                  <th>推薦分數</th>
+                </tr>
+              
+                {% for data in port_list %}               
+                  <tr class="button">
+                    <td>{{data.0}}</td>
+                    <td>{{data.1}}</td>
+                    <td>{{data.2}} </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3">
+                      <div class="show">
+                        <hr>
+                        <p>行業類別: {{data.3}}</p>
+                        <p>簡介: {{data.4}}
+                          <a href="/portfolio/information/{{data.7}}" target="_blank">see more</a>
+                        </p>                  
+                        <a href="{{data.5}}" target="_blank" class="u-border-2 u-border-hover-palette-1-base u-border-palette-1-base u-btn u-btn-round u-button-style u-hover-palette-1-base u-none u-radius-50 u-btn-1">官方網站</a>
+                        <a href="{{data.6}}" target="_blank" class="u-border-2 u-border-hover-palette-1-base u-border-palette-1-base u-btn u-btn-round u-button-style u-hover-palette-1-base u-none u-radius-50 u-btn-1">股票資訊</a>
+                        <hr>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                {% endfor %}
+
+              </table>
+              <p>*我們使用Yahoo！Finance 分數評價來推薦我們的用戶適合購買的股票。1表示非常建議購買，5表示適合賣出。</p>
+          
+
+            
             <style>
+                #showInfomation {
+                  display: none;
+                }
                 .button:hover .hover{
                   display:block;
                 }
+                .button {
+                  text-align: justify;
+                }
                 .hover{
                   display:none;
+                  style="text-align: justify;"
                 }
+                tr.hover {
+                  display: none;
+                }
+                div.show {
+                  display: none;
+                }
+                tr:hover div.show {
+                  display: block;
+                }
+            
+              
 
             </style>
+            </div>
+          </secript>
 </section>
-
-
-</script>
 <!--{% if user.is_authenticated %}-->
 <!--<form action="/portfolio/save_portfolio/", method="post">-->
 <!--    <input type="hidden" name="spr" value="{{ sharpe_ratio }}" id="spr">-->
