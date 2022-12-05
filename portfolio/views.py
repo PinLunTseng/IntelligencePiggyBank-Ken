@@ -407,6 +407,7 @@ def models_MV(amount):
         [x[:100] + "..." for x in get_introduction()],
         get_official_website(),
         get_yahoo_finance_website(),
+        get_assets_short_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
     port_list = data[:10]
@@ -479,6 +480,7 @@ def models_CVaR(amount):
         [x[:100] + "..." for x in get_introduction()],
         get_official_website(),
         get_yahoo_finance_website(),
+        get_assets_short_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
     port_list = data[:10]
@@ -548,6 +550,7 @@ def models_Omega(amount):
         get_official_website(),
         get_yahoo_finance_website(),
         get_assets_name(),
+        get_assets_short_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
     port_list = data[:10]
@@ -712,6 +715,13 @@ def get_introduction():
 def get_assets_name():
     with connection.cursor() as cursor:
         cursor.execute("select name from portfolio_assetsdetail;")
+        row = cursor.fetchall()
+    return [x[0] for x in row]
+
+
+def get_assets_short_name():
+    with connection.cursor() as cursor:
+        cursor.execute("select name from portfolio_assets;")
         row = cursor.fetchall()
     return [x[0] for x in row]
 
