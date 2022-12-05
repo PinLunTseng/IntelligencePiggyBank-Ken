@@ -115,7 +115,7 @@ class PictureForm(forms.Form):
     question10 = forms.ChoiceField(choices=CHOICES10, widget=forms.RadioSelect, label=label10)
     question11 = forms.ChoiceField(choices=CHOICES11, widget=forms.RadioSelect, label=label11)
     question12 = forms.ChoiceField(choices=CHOICES12, widget=forms.RadioSelect, label=label12)
-    amount = forms.FloatField(min_value=0.0, label="請輸入您想投資的金額：")
+    # amount = forms.FloatField(min_value=0.0, label="請輸入您想投資的金額：")
 
 
 class CalculationForm(forms.Form):
