@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html style="font-size: 16px;" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="登入">
+    <meta name="description" content="">
+    <title>SingIn</title>
+    <link rel="stylesheet" href="/static/portfolio/nicepage.css" media="screen">
+    <link rel="stylesheet" href="/static/portfolio/SingIn.css" media="screen">
+    <script class="u-script" type="text/javascript" src="/static/portfolio/jquery.js" defer=""></script>
+    <script class="u-script" type="text/javascript" src="/static/portfolio/nicepage.js" defer=""></script>
+    <meta name="generator" content="Nicepage 4.21.12, nicepage.com">
+    <link id="u-theme-google-font" rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+
+    <!--embedded LaTeX-->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+
+
+
+
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+    </script>
+
+
+    <script type="application/ld+json">{
+        "@context": "http://schema.org",
+        "@type": "Organization",
+        "name": "",
+        "logo": "images/logo_pig.png"
+    }</script>
+    <meta name="theme-color" content="#478ac9">
+    <meta property="og:title" content="SingIn">
+    <meta property="og:type" content="website">
+</head>
+<body class="u-body u-xl-mode" data-lang="en">
+<header class="u-box-shadow u-clearfix u-header u-sticky u-header" id="sec-f997" data-animation-name=""
+        data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
+    <div class="u-clearfix u-sheet u-sheet-1">
+        <a href="/portfolio/home" class="u-image u-logo u-image-1" data-image-width="1920" data-image-height="1080"
+           title="Home">
+            <img src="/static/portfolio/images/logo_pig.png" class="u-logo-image u-logo-image-1">
+        </a>
+        <nav class="u-menu u-menu-one-level u-offcanvas u-menu-1">
+            <div class="menu-collapse" style="font-size: 1rem; letter-spacing: 0px;">
+                <a class="u-button-style u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                   href="#">
+                    <svg class="u-svg-link" viewBox="0 0 24 24">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#menu-hamburger"></use>
+                    </svg>
+                    <svg class="u-svg-content" version="1.1" id="menu-hamburger" viewBox="0 0 16 16" x="0px" y="0px"
+                         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <rect y="1" width="16" height="2"></rect>
+                            <rect y="7" width="16" height="2"></rect>
+                            <rect y="13" width="16" height="2"></rect>
+                        </g>
+                    </svg>
+                </a>
+            </div>
+            <div class="u-custom-menu u-nav-container">
+                <ul class="u-nav u-unstyled u-nav-1">
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/about" style="padding: 26px 20px;">關於我們</a>
+                    </li>
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/questionnaire" style="padding: 26px 20px;">問卷試算</a>
+                        <div class="u-nav-popup">
+                            <ul class="u-h-spacing-20 u-nav u-unstyled u-v-spacing-10">
+                                <li class="u-nav-item"><a class="u-button-style u-nav-link u-white" href="#">SingIn</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/calculation" style="padding: 26px 20px;">試算</a>
+                    </li>
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/signUp" style="padding: 26px 20px;">註冊</a>
+                    </li>
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/signIn" style="padding: 26px 20px;">登入</a>
+                    </li>
+                    <li class="u-nav-item"><a
+                            class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
+                            href="/portfolio/signOut" style="padding: 26px 20px;">登出</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="u-custom-menu u-nav-container-collapse">
+                <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
+                    <div class="u-inner-container-layout u-sidenav-overflow">
+                        <div class="u-menu-close"></div>
+                        <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-3">
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/about">關於我們</a>
+                            </li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/questionnaire">問卷試算</a>
+                            </li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link"
+                                                      href="/portfolio/calculation">試算</a></li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signUp">註冊</a>
+                            </li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signIn">登入</a>
+                            </li>
+                            <li class="u-nav-item"><a class="u-button-style u-nav-link" href="/portfolio/signOut">登出</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
+            </div>
+        </nav>
+    </div>
+</header>
+<body>
+<!--<form action="/portfolio/home/" , method="post">-->
+<!--    {% csrf_token %}-->
+<!--    <label for="username">用戶名稱:</label>-->
+<!--    <input type="text" name="username" value="" id="username"> <br/>-->
+<!--    <label for="password">用戶密碼:</label>-->
+<!--    <input type="password" name="password" value="" id="password"> <br/>-->
+<!--    <input type="submit" value="登入"/>-->
+<!--</form>-->
+</body>
+<section class="u-align-center u-clearfix u-gradient u-section-1" id="carousel_d4d6">
+    <div class="u-clearfix u-sheet u-sheet-1">
+        <h2 class="u-text u-text-default u-text-1">快速試算</h2>
+        <div class="u-align-center u-container-style u-group u-radius-30 u-shape-round u-white u-group-1">
+            <div class="u-container-layout u-container-layout-1">
+                <div class="u-form u-form-1">
+
+
+                    <!--                    <form action="https://forms.nicepagesrv.com/Form/Process"-->
+                    <!--                          class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" source="email" name="form"-->
+                    <!--                          style="padding: 0px;">-->
+                    <!--                        <div class="u-form-group">-->
+                    <!--                            <label for="name-4c18" class="u-label">帳號</label>-->
+                    <!--                            <input type="text" placeholder="Enter your Name" id="name-4c18" name="username"-->
+                    <!--                                   class="u-border-2 u-border-palette-4-light-3 u-input u-input-rectangle u-palette-5-light-3 u-radius-10"-->
+                    <!--                                   required="">-->
+                    <!--&lt;!&ndash;                            {{login_form.username}}&ndash;&gt;-->
+                    <!--                        </div>-->
+
+
+                    <!--                        <div class="u-form-group">-->
+                    <!--                            <label for="message-4c18" class="u-label">密碼</label>-->
+                    <!--                            <input placeholder="Enter your password" rows="4" cols="50" id="message-4c18"-->
+                    <!--                                   name="password"-->
+                    <!--                                   class="u-border-2 u-border-palette-4-light-3 u-input u-input-rectangle u-palette-5-light-3 u-radius-10"-->
+                    <!--                                   required="required" type="text">-->
+
+                    <!--&lt;!&ndash;                            {{login_form.password}}&ndash;&gt;-->
+                    <!--                        </div>-->
+                    <!--                        <div class="u-form-email">-->
+                    <!--&lt;!&ndash;                            <label for="email-4c18" class="u-label">電子信箱</label>&ndash;&gt;-->
+                    <!--&lt;!&ndash;                            <input type="email" placeholder="Enter a valid email address" id="email-4c18" name="email"&ndash;&gt;-->
+                    <!--&lt;!&ndash;                                   class="u-border-2 u-border-palette-4-light-3 u-input u-input-rectangle u-palette-5-light-3 u-radius-10"&ndash;&gt;-->
+                    <!--&lt;!&ndash;                                   required="">&ndash;&gt;-->
+                    <!--                        </div>-->
+                    <!--                        <div class="u-align-right">-->
+                    <!--&lt;!&ndash;                            <a href="#"&ndash;&gt;-->
+                    <!--&lt;!&ndash;                               class="u-active-palette-4-light-1 u-border-5 u-border-active-palette-4-light-1 u-border-hover-palette-4-light-1 u-border-palette-4-base u-btn u-btn-round u-btn-submit u-button-style u-hover-palette-4-light-1 u-palette-4-base u-radius-10 u-btn-1">提交</a>&ndash;&gt;-->
+                    <!--&lt;!&ndash;                            <input type="submit" value="submit" class="u-form-control-hidden">&ndash;&gt;-->
+                    <!--                            <input type="submit" value="提交" />-->
+
+
+                    <!--                        </div>-->
+                    <!--                        <div class="u-form-send-message u-form-send-success"> Thank you! Your message has been sent.-->
+                    <!--                        </div>-->
+                    <!--                        <div class="u-form-send-error u-form-send-message"> Unable to send your message. Please fix-->
+                    <!--                            errors then try again.-->
+                    <!--                        </div>-->
+                    <!--                        <input type="hidden" value="" name="recaptchaResponse">-->
+                    <!--                        <input type="hidden" name="formServices" value="85ac18a5b6d5cc18018e2ef597a74735">-->
+                    <!--                    </form>-->
+                    <!--<form action="/portfolio/signIn/" , method="post">-->
+                    <!--    {% csrf_token %}-->
+                    <!--    <label for="username">用戶名稱:</label>-->
+                    <!--    <input type="text" name="username" value="" id="username"> <br/>-->
+                    <!--    <label for="password">用戶密碼:</label>-->
+                    <!--    <input type="password" name="password" value="" id="password"> <br/>-->
+                    <!--    {{error_message}}<br/>-->
+                    <!--    <input type="submit" value="登入"/>-->
+                    <!--</form>-->
+                    <form action="/portfolio/portfolioConfirm/" method="post">
+                        {% csrf_token %}
+                        <tr>
+                            <h3><label>依據上述問卷調查，本系統推薦您使用以下之投資組合模型進行投資。您亦可以選擇自己所偏好之投資組合。</label></h3>
+                            <td>
+                                <div id="id_model" style="text-align: left">
+                                {% if model == 1%}
+                                    <div>
+                                        <label for="id_model_0">
+                                            <input type="radio" name="model" value="1" required
+                                                   id="id_model_0" checked="checked"
+                                                   onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
+                                            Mean-Variance model: 均異模型
+                                        </label></div>
+                                    <div>
+                                        <label for="id_model_1"><input type="radio" name="model" value="2" required
+                                                                       id="id_model_1"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn3content'); showLayer('btn2content');">
+                                            Conditional Value at Risk model: 條件風險值模型</label></div>
+                                    <div>
+                                        <label for="id_model_2"><input type="radio" name="model" value="3" required
+                                                                       id="id_model_2"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
+                                            Omega ratio model: Omega比率模型</label></div>
+                                {% elif model == 2%}
+                                    <div>
+                                        <label for="id_model_0">
+                                            <input type="radio" name="model" value="1" required
+                                                   id="id_model_0"
+                                                   onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
+                                            Mean-Variance model: 均異模型
+                                        </label></div>
+                                    <div>
+                                        <label for="id_model_1"><input type="radio" name="model" value="2" required
+                                                                       id="id_model_1" checked="checked"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn3content'); showLayer('btn2content');">
+                                            Conditional Value at Risk model: 條件風險值模型</label></div>
+                                    <div>
+                                        <label for="id_model_2"><input type="radio" name="model" value="3" required
+                                                                       id="id_model_2"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
+                                            Omega ratio model: Omega比率模型</label></div>
+                                {% else %}
+                                    <div>
+                                        <label for="id_model_0">
+                                            <input type="radio" name="model" value="1" required
+                                                   id="id_model_0"
+                                                   onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
+                                            Mean-Variance model: 均異模型
+                                        </label></div>
+                                    <div>
+                                        <label for="id_model_1"><input type="radio" name="model" value="2" required
+                                                                       id="id_model_1"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn3content'); showLayer('btn2content');">
+                                            Conditional Value at Risk model: 條件風險值模型</label></div>
+                                    <div>
+                                        <label for="id_model_2"><input type="radio" name="model" value="3" required
+                                                                       id="id_model_2" checked="checked"
+                                                                       onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
+                                            Omega ratio model: Omega比率模型</label></div>
+                                {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="id_amount">請輸入您想投資的金額:</label></th>
+                            <td>
+                                <input type="number" name="amount" min="0.0" step="any" required id="id_amount">
+                            </td>
+                        </tr>
+                        </br>
+                        <input type="submit" value="送出"/>
+                    </form>
+                    {{s}}
+
+                </div>
+                <!--                <p class="u-text u-text-default u-text-2">-->
+                <!--                    <a class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-palette-1-base u-btn-2"-->
+                <!--                       href="https://nicepage.com">忘記密碼</a>-->
+                <!--                </p>-->
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<footer class="u-align-center u-clearfix u-footer u-grey-80 u-footer" id="sec-3e64">
+    <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <p class="u-small-text u-text u-text-variant u-text-1">台北商業大學 資訊管理系 11404組 所擁有</p>
+    </div>
+</footer>
+<!--<section class="u-backlink u-clearfix u-grey-80">-->
+<!--    <a class="u-link" href="https://nicepage.com/website-templates" target="_blank">-->
+<!--        <span>Website Templates</span>-->
+<!--    </a>-->
+<!--    <p class="u-text">-->
+<!--        <span>created with</span>-->
+<!--    </p>-->
+<!--    <a class="u-link" href="" target="_blank">-->
+<!--        <span>Website Builder Software</span>-->
+<!--    </a>.-->
+<!--</section>-->
+
+</body>
+</html>

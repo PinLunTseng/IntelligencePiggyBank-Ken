@@ -12,7 +12,7 @@ urlpatterns = [
     path('signIn/', views.signIn, name='signIn'),
     path('signOut/', views.signOut, name='signOut'),
     # path('portfolio_list/', views.portfolio_list),
-
+    path('portfolioConfirm/', views.portfolio_confirm, name='portfolioConfirm'),
     path('information/<str:company_name>', views.company_information, name='company_information'),
 
     # init assets detail

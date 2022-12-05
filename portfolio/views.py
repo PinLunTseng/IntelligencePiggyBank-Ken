@@ -210,7 +210,7 @@ def questionnaire(request):
         question10 = request.POST['question10']
         question11 = request.POST['question11']
         question12 = request.POST['question12']
-        amount = int(request.POST['amount'])
+        # amount = int(request.POST['amount'])
         result = [question01,
                   question02,
                   question03,
@@ -225,17 +225,18 @@ def questionnaire(request):
                   question12, ]
         sharpe_ratio = sum(float(x) for x in result) / 12
         # 取得風險偏好與金額，直接做試算
+        model = 0
         if sharpe_ratio <= 0.3:
             # cvar
-            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_CVaR(amount)
+            model = 1
         elif sharpe_ratio < 0.7:
             # omega
-            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_Omega(amount)
+            model = 2
         else:
             # mv
-            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list = models_MV(amount)
-
-        return render(request, "portfolio/Performance.html", locals())
+            model = 3
+        # return redirect(reverse('portfolio:portfolioConfirm', args=(model,)))
+        return render(request, "portfolio/PortfolioConfirm.html", locals())
     else:
         # if request method isn't POST
         form = PictureForm()
@@ -375,11 +376,10 @@ def models_MV(amount):
 
     periods = [date.strftime("%Y/%m/%d") for date in get_period_date()]
 
-    # return of investment line chart
+    # return of investment line chart, base on the current date compare with the first day
     roi = {0: 0.0}
     for i in range(1, period):
-        roi[i] = (amount_mv[i] - amount_mv[0]) / amount_mv[0]
-
+        roi[i] = ((amount_mv[i] - amount_mv[0]) / amount_mv[0])*100
     # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_mv.items()]
 
@@ -399,9 +399,12 @@ def models_MV(amount):
         industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
 
     # top 10 stocks detail list
+
+    weight_mv_format = [float("%.4f" % x) for x in weight_mv[-1]]
+
     data = zip(
         get_assets_full_name(),
-        weight_mv[-1],
+        weight_mv_format,
         get_recommend_score(),
         industry_after_mapping,
         [x[:100] + "..." for x in get_introduction()],
@@ -410,7 +413,9 @@ def models_MV(amount):
         get_assets_short_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
+
     port_list = data[:10]
+
     # format present weight
 
 
@@ -451,7 +456,7 @@ def models_CVaR(amount):
     # return of investment line chart
     roi = {0: 0.0}
     for i in range(1, period):
-        roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]
+        roi[i] = (amount_CVaR[i] - amount_CVaR[0]) / amount_CVaR[0]*100
 
     # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_CVaR.items()]
@@ -520,7 +525,7 @@ def models_Omega(amount):
     # return of investment line chart
     roi = {0: 0.0}
     for i in range(1, period):
-        roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]
+        roi[i] = (amount_Omega[i] - amount_Omega[0]) / amount_Omega[0]*100
 
     # annual return column chart
     amount_response = ["{:.2f}".format(v) for k, v in amount_Omega.items()]
@@ -724,6 +729,34 @@ def get_assets_short_name():
         cursor.execute("select name from portfolio_assets;")
         row = cursor.fetchall()
     return [x[0] for x in row]
+
+
+def portfolio_confirm(request):
+    # 選擇模型跟填入金額 即可試算
+    # sharpe_ratio = request.POST['sharpe_ratio']
+    # print('Im in portfolio confirm view, %s' % sharpe_ratio)
+    if request.method == "POST":
+        model = int(request.POST['model'])
+        amount = int(request.POST['amount'])
+        '''
+        傳送參數amount, 並選取特定之模型function
+        '''
+
+        if model == 1:
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_MV(amount)
+        elif model == 2:
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_CVaR(amount)
+        else:
+            model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list\
+                = models_Omega(amount)
+    else:
+        form = CalculationForm()
+        return render(request, "portfolio/Calculation.html", locals())
+    return render(request, "portfolio/Performance.html", locals())
+
+
 
 
 def fn_test(request):
