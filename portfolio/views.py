@@ -419,14 +419,7 @@ def models_MV(amount):
         get_assets_short_name(),
     )
     data = sorted(data, key=lambda x: x[1], reverse=True)
-
     port_list = data[:10]
-
-    # format present weight
-
-
-
-
     # top 10 stocks weight pie chart order by weight
     top_10 = data[:10]
     total_top_10_weight = 0
@@ -482,10 +475,12 @@ def models_CVaR(amount):
     for i in range(len(industry_b4_mapping)):
         industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
 
+    weight_cvar_format = [float("%.4f" % x) for x in weight_CVaR[-1]]
+
     # top 10 stocks detail list
     data = zip(
         get_assets_full_name(),
-        weight_CVaR[-1],
+        weight_cvar_format,
         get_recommend_score(),
         industry_after_mapping,
         [x[:100] + "..." for x in get_introduction()],
@@ -503,7 +498,7 @@ def models_CVaR(amount):
         total_top_10_weight += i[1]
     top_10_weight_and_name = [(x[0], x[1]) for x in top_10]
     top_10_weight_and_name.append(('Others', 1 - total_top_10_weight))
-    model_name = "Mean-Variance model consists of transaction cost and short selling."
+    model_name = "Conditional Value-at-Risk model."
     return model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list
 
 
@@ -552,9 +547,12 @@ def models_Omega(amount):
         industry_after_mapping[i] = industry[industry_b4_mapping[i] - 1]
 
     # top 10 stocks detail list
+
+    weight_omega_format = [float("%.4f" % x) for x in weight_Omega[-1]]
+
     data = zip(
         get_assets_full_name(),
-        weight_Omega[-1],
+        weight_omega_format,
         get_recommend_score(),
         industry_after_mapping,
         [x[:100] + "..." for x in get_introduction()],
@@ -573,7 +571,7 @@ def models_Omega(amount):
         total_top_10_weight += i[1]
     top_10_weight_and_name = [(x[0], x[1]) for x in top_10]
     top_10_weight_and_name.append(('Others', 1 - total_top_10_weight))
-    model_name = "Mean-Variance model consists of transaction cost and short selling."
+    model_name = "Omega model."
     return model_name, top_10_weight_and_name, periods, amount_response, roi, pie_chart_order_by_industry, port_list
 
 
