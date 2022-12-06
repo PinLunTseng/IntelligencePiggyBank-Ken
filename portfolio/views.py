@@ -229,12 +229,18 @@ def questionnaire(request):
         if sharpe_ratio <= 0.3:
             # cvar
             model = 1
+            risk_preference = '低'
+            portfolio_model = 'Conditional Value-at-Risk model'
         elif sharpe_ratio < 0.7:
             # omega
             model = 2
+            risk_preference = '中'
+            portfolio_model = 'Omega model'
         else:
             # mv
             model = 3
+            risk_preference = '高'
+            portfolio_model = 'Mean–Variance model consists of transaction cost and short selling'
         # return redirect(reverse('portfolio:portfolioConfirm', args=(model,)))
         return render(request, "portfolio/PortfolioConfirm.html", locals())
     else:
