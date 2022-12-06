@@ -10,6 +10,11 @@
   min-height: 400px;
   background-image: url("images/9261ff34-4e16-69ee-02a5-0143fd7866ab.png");
   background-position: 50% 50%;
+  --animation-custom_in-translate_x: -200px;
+  --animation-custom_in-translate_y: 0px;
+  --animation-custom_in-opacity: 0;
+  --animation-custom_in-rotate: 0deg;
+  --animation-custom_in-scale: 1;
 }
 
 .u-section-1 .u-container-layout-1 {
@@ -28,12 +33,18 @@
   width: 380px;
   height: 139px;
   box-shadow: 2px 0 0 0 rgba(0,0,0,0);
+  --animation-custom_in-translate_x: -200px;
+  --animation-custom_in-translate_y: 0px;
+  --animation-custom_in-opacity: 0;
+  --animation-custom_in-rotate: 0deg;
+  --animation-custom_in-scale: 1;
   margin: 38px auto 0 47px;
 }
 
 .u-section-1 .u-text-1 {
   margin: 30px auto 0 53px;
 }
+
 
 #ChartsDiv {
   width: 550px;
