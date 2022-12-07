@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="keywords" content="登入">
     <meta name="description" content="">
-    <title>SingIn</title>
+    <title>投資偏好</title>
     <link rel="stylesheet" href="/static/portfolio/nicepage.css" media="screen">
-    <link rel="stylesheet" href="/static/portfolio/SingIn.css" media="screen">
+    <link rel="stylesheet" href="/static/portfolio/portfolioConfirm.css" media="screen">
     <script class="u-script" type="text/javascript" src="/static/portfolio/jquery.js" defer=""></script>
     <script class="u-script" type="text/javascript" src="/static/portfolio/nicepage.js" defer=""></script>
     <meta name="generator" content="Nicepage 4.21.12, nicepage.com">
@@ -35,9 +35,102 @@
     <meta name="theme-color" content="#478ac9">
     <meta property="og:title" content="SingIn">
     <meta property="og:type" content="website">
+
+    <style>
+
+    {% comment %} .group {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+    }
+
+    input[type="radio"] {
+        display: none;
+      }
+      
+      label {
+        cursor: pointer;
+        margin: 10px 10px;
+      }
+      
+      label:before {
+        content: '';
+        display: inline-block;
+        height: 30px;
+        width: 30px;
+        background: #fdf0ba;
+        border-radius: 50%;
+        z-index: 2;
+        transition: box-shadow .4s ease,
+        
+      }
+      
+      .group input[type=radio]:checked + label:before {
+        box-shadow: inset 0px 3px 0 2px rgba(89,202,89,1);
+        background: #737373;
+      } {% endcomment %}
+
+      .groupdiv:first-of-type {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 5px;
+      }
+      
+      label {
+        margin-right: 15px;
+        line-height: 32px;
+      }
+      
+      input[type=radio] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+      
+        border: 2px solid #999;
+        transition: 0.2s all linear;
+        outline: none;
+        margin-right: 5px;
+      
+        position: relative;
+        top: 4px;
+      }
+      
+      input[type=radio]:checked {
+        border: 6px solid black;
+      }
+      
+      button,
+      legend {
+        color: white;
+        background-color: black;
+        padding: 5px 10px;
+        border-radius: 0;
+        border: 0;
+        font-size: 14px;
+      }
+      
+      button:hover,
+      button:focus {
+        color: #999;
+      }
+      
+      button:active {
+        background-color: white;
+        color: black;
+        outline: 1px solid black;
+      }
+      
+          
+    </style>
 </head>
 <body class="u-body u-xl-mode" data-lang="en">
-<header class="u-box-shadow u-clearfix u-header u-sticky u-header" id="sec-f997" data-animation-name=""
+<header class="u-box-shadow u-clearfix u-header u-sticky u-sticky-4220 u-white u-header" id="sec-f997" data-animation-name=""
         data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
     <div class="u-clearfix u-sheet u-sheet-1">
         <a href="/portfolio/home" class="u-image u-logo u-image-1" data-image-width="1920" data-image-height="1080"
@@ -120,7 +213,7 @@
         </nav>
     </div>
 </header>
-<body>
+
 <!--<form action="/portfolio/home/" , method="post">-->
 <!--    {% csrf_token %}-->
 <!--    <label for="username">用戶名稱:</label>-->
@@ -129,10 +222,10 @@
 <!--    <input type="password" name="password" value="" id="password"> <br/>-->
 <!--    <input type="submit" value="登入"/>-->
 <!--</form>-->
-</body>
+
 <section class="u-align-center u-clearfix u-gradient u-section-1" id="carousel_d4d6">
     <div class="u-clearfix u-sheet u-sheet-1">
-        <h2 class="u-text u-text-default u-text-1">快速試算</h2>
+        <h2 class="u-text u-text-default u-text-1">風險評估</h2>
         <div class="u-align-center u-container-style u-group u-radius-30 u-shape-round u-white u-group-1">
             <div class="u-container-layout u-container-layout-1">
                 <div class="u-form u-form-1">
@@ -140,8 +233,10 @@
                         {% csrf_token %}
                         <tr>
                             <h3>
-                                依據您的風險偏好調查，我們認定您屬於：「{{risk_preference}}」度風險偏好之投資人，<br>
-                                藉此，我們建議您使用符合「{{risk_preference}}」度風險偏好之投資組合模型：「{{portfolio_model}}」進行投資。<br>
+                                <b>{{risk_preference}}度風險</b>
+                                <img src="/static/portfolio/images/statistics.png" class="u-image u-image-circle u-image-contain u-image-1" alt=""data-image-width="15" data-image-height="15">
+                                
+                                建議模型：「{{portfolio_model}}」<br><br>
                                 或者您可以選擇自己所偏好之投資組合模型進行投資：
                             </h3>
 
@@ -149,22 +244,27 @@
                                 <div id="id_model" style="text-align: left">
                                 {% if model == 1%}
                                     <div>
-                                        <label for="id_model_0">
-                                            <input type="radio" name="model" value="1" required
+                                        <input type="radio" name="model" value="1" required
                                                    id="id_model_0"
                                                    onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
+                                        <label for="id_model_0">
+                                            
                                             Mean-Variance model: 均異模型
                                         </label></div>
                                     <div>
-                                        <label for="id_model_1"><input type="radio" name="model" value="2" required
+                                        <input type="radio" name="model" value="2" required
                                                                        id="id_model_1" checked="checked"
                                                                        onclick="hideLayer('btn1content'); hideLayer('btn3content'); showLayer('btn2content');">
-                                            Conditional Value at Risk model: 條件風險值模型</label></div>
+                                        <label for="id_model_1">
+                                            Conditional Value at Risk model: 條件風險值模型</label>
+                                    </div>
                                     <div>
-                                        <label for="id_model_2"><input type="radio" name="model" value="3" required
+                                        <input type="radio" name="model" value="3" required
                                                                        id="id_model_2"
                                                                        onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
-                                            Omega model: Omega模型</label></div>
+                                        <label for="id_model_2">
+                                            Omega model: Omega模型</label>
+                                    </div>
                                 {% elif model == 2%}
                                     <div>
                                         <label for="id_model_0">
@@ -184,23 +284,27 @@
                                                                        onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
                                             Omega model: Omega模型</label></div>
                                 {% else %}
-                                    <div>
+                                    <div class="group">
+                                        <input type="radio" name="model" value="1" required
+                                        id="id_model_0" checked="checked"
+                                        onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
                                         <label for="id_model_0">
-                                            <input type="radio" name="model" value="1" required
-                                                   id="id_model_0" checked="checked"
-                                                   onclick="hideLayer('btn2content'); hideLayer('btn3content'); showLayer('btn1content');">
-                                            Mean-Variance model: 均異模型
-                                        </label></div>
-                                    <div>
-                                        <label for="id_model_1"><input type="radio" name="model" value="2" required
+                                            <span>Mean-Variance model: 均異模型</span>
+                                        </label>
+                                    
+                                        <input type="radio" name="model" value="2" required
                                                                        id="id_model_1"
                                                                        onclick="hideLayer('btn1content'); hideLayer('btn3content'); showLayer('btn2content');">
-                                            Conditional Value at Risk model: 條件風險值模型</label></div>
-                                    <div>
-                                        <label for="id_model_2"><input type="radio" name="model" value="3" required
+                                        <label for="id_model_1"><span>Conditional Value at Risk model: 條件風險值模型</span>
+                                        </label>
+                                    
+                                        <input type="radio" name="model" value="3" required
                                                                        id="id_model_2"
                                                                        onclick="hideLayer('btn1content'); hideLayer('btn2content'); showLayer('btn3content');">
-                                            Omega model: Omega模型</label></div>
+                                            
+                                        <label for="id_model_2"><span>Omega model: Omega模型</span>
+                                         </label>
+                                    </div>
                                 {% endif %}
                                 </div>
                             </td>
@@ -208,11 +312,18 @@
                         <tr>
                             <th><label for="id_amount">請輸入您想投資的金額:</label></th>
                             <td>
-                                <input type="number" name="amount" min="0.0" step="any" required id="id_amount">
+                                <div >
+                                    <input type="number" name="amount" min="0.0" step="any" required id="id_amount">
+                                </div>
+                            </td>
+                            <td>
+                                <br>
                             </td>
                         </tr>
-                        </br>
-                        <input type="submit" value="送出"/>
+                        
+
+                        <input type="submit" class="u-border-none 
+                        u-btn u-btn-round u-btn-submit u-button-style u-hover-palette-4-dark-2 u-palette-4-dark-1 u-radius-21 u-btn-1" value="送出"/>
                     </form>
                     {{s}}
 
@@ -224,6 +335,7 @@
             </div>
         </div>
     </div>
+
 </section>
 
 
